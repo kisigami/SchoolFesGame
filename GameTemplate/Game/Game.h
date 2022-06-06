@@ -16,5 +16,6 @@ public:
 private:
 	ModelRender m_modelRender;
 	Vector3 m_pos;
+	Player* m_player = nullptr;
 };
 
