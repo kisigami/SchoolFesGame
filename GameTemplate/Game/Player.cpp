@@ -7,7 +7,7 @@ namespace
 	const float CHARACON_RADIUS = 20.0f;      //キャラコンの半径
 	const float CHARACON_HEIGHT = 50.0f;      //キャラコンの高さ
 	const float MOVE_SPEED = 100.0f;          //移動速度
-	const float MINIMUMVALUE = 0.00001f;        //移動速度の最低値
+	const float MINIMUMVALUE = 0.00001f;      //移動速度の最低値
 }
 
 void Player::InitAnimation()
@@ -25,7 +25,7 @@ bool Player::Start()
 	InitAnimation();
 
 	//モデルの読み込み
-	m_modelRender.Init("Assets/modelData/Player/Demo.tkm", m_animClips, enAnimClip_Num);
+	m_modelRender.Init("Assets/modelData/player/Demo.tkm", m_animClips, enAnimClip_Num);
 
 	//更新
 	m_modelRender.SetPosition(m_position);
@@ -56,20 +56,7 @@ void Player::Update()
 
 void Player::Rotation()
 {
-	//移動速度がなかったら
-	if (fabsf(m_moveSpeed.x) < MINIMUMVALUE
-		&& fabsf(m_moveSpeed.z) < MINIMUMVALUE)
-	{
-		//何もしない
-		return;
-	}
-	float angle = atan2(-m_moveSpeed.x, m_moveSpeed.z);
-	m_rotation.SetRotationY(-angle);
-	//回転を設定する
-	m_modelRender.SetRotation(m_rotation);
-	//プレイヤーの正面ベクトルを計算する
-	m_forward = Vector3::AxisZ;
-	m_rotation.Apply(m_forward);
+
 }
 
 void Player::Move()
@@ -162,5 +149,5 @@ void Player::ProcessRunStateTransition()
 void Player::Render(RenderContext& rc)
 {
 	//モデルの描画
-	m_modelRender.Draw(rc);
+	//m_modelRender.Draw(rc);
 }

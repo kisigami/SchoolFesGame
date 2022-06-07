@@ -1,6 +1,6 @@
 #pragma once
 
-class Player:public IGameObject
+class Player :public IGameObject
 {
 public:
 	/// <summary>
@@ -16,7 +16,32 @@ public:
 	void Update();
 	void Render(RenderContext& rc);
 
-private:
+	/// <summary>
+	/// 座標を設定
+	/// </summary>
+	/// <param name="position">座標</param>
+	void SetPosition(const Vector3& position)
+	{
+		m_position = position;
+	}
+	/// <summary>
+	/// 座標を取得
+	/// </summary>
+	/// <returns>座標</returns>
+	const Vector3& GetPosition() const
+	{
+		return m_position;
+	}
+	/// <summary>
+	/// 回転を設定
+	/// </summary>
+	/// <param name="rotation">回転</param>
+	void SetRotation(const Quaternion& rotation)
+	{
+		m_rotation = rotation;
+	}
+
+//private:
 	/// <summary>
 	/// アニメーション初期化
 	/// </summary>
