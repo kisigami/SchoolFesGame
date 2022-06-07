@@ -1,5 +1,7 @@
 #pragma once
 
+class GameCamera;
+
 class Player :public IGameObject
 {
 public:
@@ -93,5 +95,6 @@ public:
 	Vector3              m_moveSpeed;                            //移動速度
 	Vector3              m_forward = Vector3::AxisZ;             //プレイヤーの前ベクトル
 	Quaternion           m_rotation;                             //回転
+	GameCamera* m_gameCamera;
 };
 

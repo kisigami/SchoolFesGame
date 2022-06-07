@@ -4,7 +4,7 @@
 bool BackGround::Start()
 {
 	m_modelRender.Init("Assets/modelData/background/background.tkm");
-
+	m_physicsStaticObject.CreateFromModel(m_modelRender.GetModel(), m_modelRender.GetModel().GetWorldMatrix());
 	return true;
 }
 

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Player.h"
+#include "GameCamera.h"
 
 namespace
 {
@@ -31,6 +32,9 @@ bool Player::Start()
 	m_modelRender.SetPosition(m_position);
 	m_modelRender.Update();
 
+	//カメラのインスタンスを取得
+	m_gameCamera = FindGO<GameCamera>("gamecamera");
+
 	//キャラコンを初期化
 	m_charaCon.Init(CHARACON_RADIUS,CHARACON_HEIGHT, m_position);
 
@@ -56,7 +60,14 @@ void Player::Update()
 
 void Player::Rotation()
 {
-
+	//カメラの注視点へのベクトル
+	Vector3 targetVector = m_gameCamera->GetTargetPosition() - m_position;
+	//正規化
+	targetVector.Normalize();
+	//y座標のベクトルを0.0fにする
+	targetVector.y = 0.0f;
+	//常にカメラの向いている向きを向く
+	m_rotation.SetRotationYFromDirectionXZ(targetVector);
 }
 
 void Player::Move()
@@ -75,13 +86,15 @@ void Player::Move()
 	cameraForward.Normalize();
 	cameraRight.y = ZERO;
 	cameraRight.Normalize();
+	//カメラのベクトル×コントローラーの入力値×移動速度
 	m_moveSpeed += cameraForward * lStick_y * MOVE_SPEED;
 	m_moveSpeed += cameraRight * lStick_x * MOVE_SPEED;
+	//重力
+	m_moveSpeed.y -= 500.0f * g_gameTime->GetFrameDeltaTime();
 	//キャラコンを使用して、座標を更新する
 	m_position = m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
 	//座標の更新
-	Vector3 modelPosition = m_position;
-	m_modelRender.SetPosition(modelPosition);
+	m_modelRender.SetPosition(m_position);
 }
 
 void Player::PlayAnimation()
@@ -118,6 +131,11 @@ void Player::ManageState()
 
 void Player::ProcessCommonStateTransition()
 {
+	if (g_pad[0]->IsTrigger(enButtonA))
+	{
+		m_moveSpeed.y += 250.0f;
+	}
+
 	//移動速度があったら
 	if (fabsf(m_moveSpeed.x) >= MINIMUMVALUE ||
 		fabsf(m_moveSpeed.z) >= MINIMUMVALUE)
@@ -149,5 +167,5 @@ void Player::ProcessRunStateTransition()
 void Player::Render(RenderContext& rc)
 {
 	//モデルの描画
-	//m_modelRender.Draw(rc);
+	m_modelRender.Draw(rc);
 }

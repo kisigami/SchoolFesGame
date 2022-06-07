@@ -6,6 +6,7 @@ class Player;
 class BackGround;
 class GameCamera;
 
+
 class Game : public IGameObject
 {
 public:
@@ -22,5 +23,6 @@ private:
 	Player* m_player = nullptr;
 	BackGround* m_backGround = nullptr;
 	GameCamera* m_gameCamera = nullptr;
+
 };
 

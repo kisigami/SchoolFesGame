@@ -11,10 +11,14 @@ public:
 	bool Start();
 	void Update();
 
-	/////////////////////////////////////
-	//メンバ変数
-	/////////////////////////////////////
+	const Vector3& GetTargetPosition() const
+	{
+		return m_targetPosition;
+	}
+
+private:
 	Player* m_player = nullptr;		//プレイヤー。
 	Vector3 m_toCameraPos = Vector3::One;
+	Vector3 m_targetPosition;
 };
 
