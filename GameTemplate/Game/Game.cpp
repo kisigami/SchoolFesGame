@@ -5,6 +5,16 @@
 #include "BackGround.h"
 #include "GameCamera.h"
 
+Game::Game()
+{
+
+}
+
+Game::~Game()
+{
+
+}
+
 bool Game::Start()
 {
 	m_gameCamera = NewGO<GameCamera>(0, "gamecamera");
@@ -14,6 +24,7 @@ bool Game::Start()
 	m_modelRender.Init("Assets/modelData/player/Demo.tkm");
 	Vector3 pos = { 0.0f,0.0f,300.0f };
 	m_modelRender.SetPosition(pos);
+
 
 	return true;
 }

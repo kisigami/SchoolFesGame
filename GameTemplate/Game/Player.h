@@ -1,5 +1,6 @@
 #pragma once
 
+//クラス宣言
 class GameCamera;
 
 class Player :public IGameObject
@@ -14,6 +15,8 @@ public:
 		enPlayerState_Run,    //走りステート
 	};
 
+	Player();
+	~Player();
 	bool Start();
 	void Update();
 	void Render(RenderContext& rc);
@@ -43,7 +46,9 @@ public:
 		m_rotation = rotation;
 	}
 
-//private:
+private:
+	void MakeBullet();
+
 	/// <summary>
 	/// アニメーション初期化
 	/// </summary>
@@ -87,7 +92,7 @@ public:
 
 	EnPlayerState        m_playerState = enPlayerState_Idle;     //プレイヤーステート
 	Animation            m_animation;                            //アニメーション
-	AnimationClip        m_animClips[enAnimClip_Num];           //アニメーションクリップ
+	AnimationClip        m_animClips[enAnimClip_Num];            //アニメーションクリップ
 	ModelRender          m_modelRender;                          //モデルレンダー
 	CharacterController  m_charaCon;                             //キャラクターコントローラー
 	Vector3              m_position;                             //座標
@@ -95,6 +100,6 @@ public:
 	Vector3              m_moveSpeed;                            //移動速度
 	Vector3              m_forward = Vector3::AxisZ;             //プレイヤーの前ベクトル
 	Quaternion           m_rotation;                             //回転
-	GameCamera* m_gameCamera;
+	GameCamera*          m_gameCamera;                           //ゲームカメラ
 };
 

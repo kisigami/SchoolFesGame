@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Player.h"
+
 #include "GameCamera.h"
+#include "Bullet.h"
 
 namespace
 {
@@ -8,7 +10,9 @@ namespace
 	const float CHARACON_RADIUS = 20.0f;      //キャラコンの半径
 	const float CHARACON_HEIGHT = 50.0f;      //キャラコンの高さ
 	const float MOVE_SPEED = 100.0f;          //移動速度
-	const float MINIMUMVALUE = 0.00001f;      //移動速度の最低値
+	const float MINIMUMVALUE = 0.001f;        //移動速度の最低値
+	const float JUMP_SPEED = 250.0f;          //ジャンプ力
+	const float GRAVITY = 500.0f;             //重力
 }
 
 void Player::InitAnimation()
@@ -20,6 +24,16 @@ void Player::InitAnimation()
 	m_animClips[enAnimClip_Run].SetLoopFlag(true);
 }
 
+Player::Player()
+{
+
+}
+
+Player::~Player()
+{
+
+}
+
 bool Player::Start()
 {
 	//アニメーション初期化
@@ -29,7 +43,7 @@ bool Player::Start()
 	m_modelRender.Init("Assets/modelData/player/Demo.tkm", m_animClips, enAnimClip_Num);
 
 	//更新
-	m_modelRender.SetPosition(m_position);
+	m_modelRender.SetTRS(m_position,m_rotation,m_scale);
 	m_modelRender.Update();
 
 	//カメラのインスタンスを取得
@@ -54,7 +68,9 @@ void Player::Update()
 
 	//モデルの更新
 	m_modelRender.Update();
+	//座標の更新
 	m_modelRender.SetPosition(m_position);
+	//回転の更新
 	m_modelRender.SetRotation(m_rotation);
 }
 
@@ -66,12 +82,13 @@ void Player::Rotation()
 	targetVector.Normalize();
 	//y座標のベクトルを0.0fにする
 	targetVector.y = 0.0f;
-	//常にカメラの向いている向きを向く
+	//カメラの向いている方向を向く
 	m_rotation.SetRotationYFromDirectionXZ(targetVector);
 }
 
 void Player::Move()
 {
+	
 	//移動速度
 	m_moveSpeed.x = ZERO;
 	m_moveSpeed.z = ZERO;
@@ -90,11 +107,21 @@ void Player::Move()
 	m_moveSpeed += cameraForward * lStick_y * MOVE_SPEED;
 	m_moveSpeed += cameraRight * lStick_x * MOVE_SPEED;
 	//重力
-	m_moveSpeed.y -= 500.0f * g_gameTime->GetFrameDeltaTime();
+	m_moveSpeed.y -= GRAVITY * g_gameTime->GetFrameDeltaTime();
 	//キャラコンを使用して、座標を更新する
 	m_position = m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
 	//座標の更新
 	m_modelRender.SetPosition(m_position);
+}
+
+void Player::MakeBullet()
+{
+	//弾を作成する
+	Bullet* bullet = NewGO<Bullet>(0);
+	//弾の座標をプレイヤーの少し前にする
+	Vector3 bulletPosition = m_position;
+	bulletPosition = m_forward * 60.0f;
+	bullet->SetPosition(bulletPosition);
 }
 
 void Player::PlayAnimation()
@@ -131,9 +158,11 @@ void Player::ManageState()
 
 void Player::ProcessCommonStateTransition()
 {
+	//Aボタンが押されたら
 	if (g_pad[0]->IsTrigger(enButtonA))
 	{
-		m_moveSpeed.y += 250.0f;
+		//ジャンプする
+		MakeBullet();
 	}
 
 	//移動速度があったら
