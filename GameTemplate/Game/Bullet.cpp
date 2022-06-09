@@ -8,12 +8,12 @@ bool Bullet::Start()
 {
 	m_modelRender.Init("Assets/modelData/bullet/bullet.tkm");
 	m_gameCamera = FindGO<GameCamera>("gamecamera");
-
 	m_player = FindGO<Player>("player");
 
 	m_position = m_player->GetPosition();
-	m_position.y += 65.0f;
-	
+	m_position.y += 50.0f;
+	m_position += g_camera3D->GetRight() * 30.0f;
+
 	m_modelRender.SetPosition(m_position);
 
 	m_moveSpeed = m_gameCamera->GetTargetPosition() - m_position;

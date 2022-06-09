@@ -17,7 +17,7 @@ bool BackGround::Start()
 	m_modelRender.Init("Assets/modelData/background/background.tkm");
 	//“–‚½‚è”»’è
 	m_physicsStaticObject.CreateFromModel(m_modelRender.GetModel(), m_modelRender.GetModel().GetWorldMatrix());
-	
+	//“–‚½‚è”»’è‚Ì‰ÂŽ‹‰»
 	//PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
 	
 	return true;

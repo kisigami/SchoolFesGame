@@ -37,13 +37,13 @@ Player::~Player()
 bool Player::Start()
 {
 	//アニメーション初期化
-	InitAnimation();
+	//InitAnimation();
 
 	//モデルの読み込み
-	m_modelRender.Init("Assets/modelData/player/Demo.tkm", m_animClips, enAnimClip_Num);
+	m_modelRender.Init("Assets/modelData/arm/arm.tkm"/*, m_animClips, enAnimClip_Num*/);
 
 	//更新
-	m_modelRender.SetTRS(m_position,m_rotation,m_scale);
+	m_modelRender.SetPosition(Vector3::Zero);
 	m_modelRender.Update();
 
 	//カメラのインスタンスを取得
@@ -62,7 +62,7 @@ void Player::Update()
 	//移動処理
 	Move();
 	//アニメーションの再生
-	PlayAnimation();
+	//PlayAnimation();
 	//各ステートの遷移処理
 	ManageState();
 
@@ -80,15 +80,13 @@ void Player::Rotation()
 	Vector3 targetVector = m_gameCamera->GetTargetPosition() - m_position;
 	//正規化
 	targetVector.Normalize();
-	//y座標のベクトルを0.0fにする
-	targetVector.y = 0.0f;
+
 	//カメラの向いている方向を向く
 	m_rotation.SetRotationYFromDirectionXZ(targetVector);
 }
 
 void Player::Move()
 {
-	
 	//移動速度
 	m_moveSpeed.x = ZERO;
 	m_moveSpeed.z = ZERO;
@@ -107,7 +105,7 @@ void Player::Move()
 	m_moveSpeed += cameraForward * lStick_y * MOVE_SPEED;
 	m_moveSpeed += cameraRight * lStick_x * MOVE_SPEED;
 	//重力
-	m_moveSpeed.y -= GRAVITY * g_gameTime->GetFrameDeltaTime();
+	//m_moveSpeed.y -= GRAVITY * g_gameTime->GetFrameDeltaTime();
 	//キャラコンを使用して、座標を更新する
 	m_position = m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
 	//座標の更新
@@ -118,10 +116,6 @@ void Player::MakeBullet()
 {
 	//弾を作成する
 	Bullet* bullet = NewGO<Bullet>(0);
-	//弾の座標をプレイヤーの少し前にする
-	Vector3 bulletPosition = m_position;
-	bulletPosition = m_forward * 60.0f;
-	bullet->SetPosition(bulletPosition);
 }
 
 void Player::PlayAnimation()

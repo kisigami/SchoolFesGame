@@ -38,6 +38,14 @@ public:
 		return m_position;
 	}
 	/// <summary>
+	/// 右座標を取得
+	/// </summary>
+	/// <returns>右座標</returns>
+	const Vector3& GetRight() const
+	{
+		return m_right;
+	}
+	/// <summary>
 	/// 回転を設定
 	/// </summary>
 	/// <param name="rotation">回転</param>
@@ -94,11 +102,14 @@ private:
 	Animation            m_animation;                            //アニメーション
 	AnimationClip        m_animClips[enAnimClip_Num];            //アニメーションクリップ
 	ModelRender          m_modelRender;                          //モデルレンダー
+	ModelRender          m_rightHandRender;
+	ModelRender          m_leftHandRender;
 	CharacterController  m_charaCon;                             //キャラクターコントローラー
 	Vector3              m_position;                             //座標
 	Vector3              m_scale;                                //大きさ
 	Vector3              m_moveSpeed;                            //移動速度
 	Vector3              m_forward = Vector3::AxisZ;             //プレイヤーの前ベクトル
+	Vector3              m_right = Vector3::AxisX;
 	Quaternion           m_rotation;                             //回転
 	GameCamera*          m_gameCamera;                           //ゲームカメラ
 };

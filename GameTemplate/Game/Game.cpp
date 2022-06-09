@@ -21,7 +21,7 @@ bool Game::Start()
 	m_player = NewGO<Player>(0, "player");
 	m_backGround = NewGO<BackGround>(0, "background");
 
-	m_modelRender.Init("Assets/modelData/player/Demo.tkm");
+	m_modelRender.Init("Assets/modelData/arm/arm.tkm");
 	Vector3 pos = { 0.0f,0.0f,300.0f };
 	m_modelRender.SetPosition(pos);
 
