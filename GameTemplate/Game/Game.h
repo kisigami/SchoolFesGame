@@ -6,6 +6,7 @@
 class Player;
 class BackGround;
 class GameCamera;
+class Enemy;
 
 
 class Game : public IGameObject
@@ -18,12 +19,9 @@ public:
 	void Render(RenderContext& rc);
 
 private:
-	ModelRender m_modelRender;
-	Vector3     m_pos;
-
 	Player*     m_player = nullptr;       //プレイヤー
 	BackGround* m_backGround = nullptr;   //背景
 	GameCamera* m_gameCamera = nullptr;   //ゲームカメラ
-
+	Enemy* m_enemy = nullptr;
 };
 

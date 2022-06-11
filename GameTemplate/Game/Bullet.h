@@ -1,14 +1,15 @@
 #pragma once
 
 class GameCamera;
-class Player;
+class Enemy;
 
 class Bullet:public IGameObject
 {
 public:
+	Bullet();
+	~Bullet();
 	bool Start();
 	void Update();
-	void Render(RenderContext& rc);
 
 	/// <summary>
 	/// ç¿ïWÇê›íËÇ∑ÇÈÅB
@@ -36,15 +37,13 @@ public:
 	}
 private:
 
-	void Move();
-
 	GameCamera* m_gameCamera = nullptr;
 	CollisionObject* m_collisionObject;
-	ModelRender m_modelRender;
+	float m_timer = 0.0f;
 	Vector3 m_position;
 	Vector3 m_moveSpeed;
 	Quaternion m_rotation;
-	Vector3 m_scale;
-	Player* m_player;
+	Vector3 m_scale = Vector3::One;
+	Enemy* m_enemy = nullptr;
 };
 

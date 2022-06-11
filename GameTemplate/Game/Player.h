@@ -37,6 +37,10 @@ public:
 	{
 		return m_position;
 	}
+	const Quaternion& GetRotation() const
+	{
+		return m_rotation;
+	}
 	/// <summary>
 	/// ‰EÀ•W‚ğæ“¾
 	/// </summary>
@@ -64,7 +68,7 @@ private:
 	/// <summary>
 	/// ‰ñ“]ˆ—
 	/// </summary>
-	void Rotation();
+	void Rotation(); 
 	/// <summary>
 	/// ˆÚ“®ˆ—
 	/// </summary>

@@ -16,6 +16,7 @@
     <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="BackGround.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="Enemy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -27,5 +28,6 @@
     <ClInclude Include="GameCamera.h" />
     <ClInclude Include="BackGround.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="Enemy.h" />
   </ItemGroup>
 </Project>

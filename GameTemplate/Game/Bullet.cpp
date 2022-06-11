@@ -1,25 +1,33 @@
 #include "stdafx.h"
 #include "Bullet.h"
 #include "GameCamera.h"
-#include "Player.h"
 #include "collision/CollisionObject.h"
+#include "Enemy.h"
+
+Bullet::Bullet()
+{
+
+}
+
+Bullet::~Bullet()
+{
+	DeleteGO(m_collisionObject);
+}
 
 bool Bullet::Start()
 {
-	m_modelRender.Init("Assets/modelData/bullet/bullet.tkm");
 	m_gameCamera = FindGO<GameCamera>("gamecamera");
-	m_player = FindGO<Player>("player");
-
-	m_position = m_player->GetPosition();
-	m_position.y += 50.0f;
-	m_position += g_camera3D->GetRight() * 30.0f;
-
-	m_modelRender.SetPosition(m_position);
+	m_enemy = FindGO<Enemy>("enemy");
 
 	m_moveSpeed = m_gameCamera->GetTargetPosition() - m_position;
 	m_moveSpeed.Normalize();
-	m_position += m_moveSpeed * 50.0f;
-	m_moveSpeed *= 1200.0f;
+	m_position += m_moveSpeed * 100.0f;
+	m_moveSpeed *= 2000.0f;
+
+	m_collisionObject = NewGO<CollisionObject>(0);
+	m_collisionObject->CreateSphere(m_position, Quaternion::Identity, 10.0f * m_scale.z);
+	m_collisionObject->SetName("bullet");
+	m_collisionObject->SetIsEnableAutoDelete(false);
 
 	return true;
 }
@@ -28,12 +36,13 @@ void Bullet::Update()
 {	
 	m_position += m_moveSpeed * g_gameTime->GetFrameDeltaTime();
 
-	m_modelRender.SetPosition(m_position);
-	m_modelRender.Update();
-}
-
-
-void Bullet::Render(RenderContext& rc)
-{
-	m_modelRender.Draw(rc);
+	//タイマーを加算する。
+	m_timer += g_gameTime->GetFrameDeltaTime();
+	m_collisionObject->SetPosition(m_position);
+	//タイマーが0.7f以上だったら。
+	if (m_timer >= 3.0f)
+	{
+		//自身を削除する。
+		DeleteGO(this);
+	}
 }

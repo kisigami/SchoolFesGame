@@ -20,16 +20,22 @@ public:
 	{
 		return m_targetPosition;
 	}
-	const Vector3& GetCameraPos() const
+	const Vector3& GetToCameraPos() const
 	{
 		return m_toCameraPos;
 	}
+	const Vector3& GetCameraPosition() const
+	{
+		return m_cameraPosition;
+	}
+
 private:
+	ModelRender    m_modelRender;
 	FontRender    m_fontRender;
-	ModelRender   m_modelRender;
 	Player*       m_player = nullptr;		        //プレイヤー。
 	Vector3       m_toCameraPos = Vector3::One;     //注視点から視点へのベクトル
 	Vector3       m_targetPosition;                 //注視点の座標
+	Vector3       m_cameraPosition;
 	SpriteRender  m_spriteRender;
 };
 
