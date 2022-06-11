@@ -13,6 +13,8 @@ public:
 	{
 		enPlayerState_Idle,   //待機ステート
 		enPlayerState_Run,    //走りステート
+		enPlayerState_Shot,
+		enPlayerState_Back
 	};
 
 	Player();
@@ -93,12 +95,19 @@ private:
 	/// 走りステートの遷移処理
 	/// </summary>
 	void ProcessRunStateTransition();
+	/// <summary>
+	/// 射撃ステートの遷移処理
+	/// </summary>
+	void ProcessShotStateTransition();
 
+	void ProcessBackStateTransition();
 	//アニメーションクリップの番号を表す
 	enum EnAnimationClip
 	{
 		enAnimClip_Idle,   //待機アニメーション
 		enAnimClip_Run,    //走りアニメーション
+		enAnimClip_Shot,
+		enAnimClip_Back,
 		enAnimClip_Num     //アニメーションの数
 	};
 

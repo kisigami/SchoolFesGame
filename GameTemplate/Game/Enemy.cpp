@@ -28,9 +28,9 @@ void Enemy::InitAnimation()
 
 bool Enemy::Start()
 {
-	InitAnimation();
+	//InitAnimation();
 
-	m_modelRender.Init("Assets/modelData/enemy/enemy.tkm", m_animClips, enAnimClip_Num);
+	m_modelRender.Init("Assets/modelData/gun/shotgun2.tkm"/*, m_animClips, enAnimClip_Num*/);
 	m_position = { 100.0f,0.0f,500.0f };
 	m_charaCon.Init(12.0f, 45.0f, m_position);
 

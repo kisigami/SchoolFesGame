@@ -28,8 +28,14 @@ Player::~Player()
 void Player::InitAnimation()
 {
 	//アニメーションクリップをロードする
-	m_animClips[enAnimClip_Idle].Load("Assets/animData/gun/reroad.tka");
+	m_animClips[enAnimClip_Idle].Load("Assets/animData/gun/idle.tka");
 	m_animClips[enAnimClip_Idle].SetLoopFlag(true);
+	m_animClips[enAnimClip_Run].Load("Assets/animData/gun/run.tka");
+	m_animClips[enAnimClip_Run].SetLoopFlag(true);
+	m_animClips[enAnimClip_Shot].Load("Assets/animData/gun/shot.tka");
+	m_animClips[enAnimClip_Shot].SetLoopFlag(false);
+	m_animClips[enAnimClip_Back].Load("Assets/animData/gun/back.tka");
+	m_animClips[enAnimClip_Back].SetLoopFlag(false);
 }
 
 bool Player::Start()
@@ -37,7 +43,7 @@ bool Player::Start()
 	InitAnimation();
 
 	//モデルの読み込み
-	m_modelRender.Init("Assets/modelData/gun/shotgun.tkm", m_animClips, enAnimClip_Num);
+	m_modelRender.Init("Assets/modelData/gun/shotgun2.tkm", m_animClips, enAnimClip_Num);
 
 	m_position = { 0.0f,0.0f,0.0f };
 
@@ -62,6 +68,8 @@ void Player::Update()
 	Move();
 	//各ステートの遷移処理
 	ManageState();
+
+	PlayAnimation();
 
 	//モデルの更新
 	m_modelRender.Update();
@@ -136,6 +144,14 @@ void Player::PlayAnimation()
 		m_modelRender.PlayAnimation(enAnimClip_Run, 0.1f);
 		m_modelRender.SetAnimationSpeed(1.0f);
 		break;
+	case Player::enPlayerState_Shot:
+		m_modelRender.PlayAnimation(enAnimClip_Shot, 0.3f);
+		m_modelRender.SetAnimationSpeed(1.2f);
+		break;
+	case Player::enPlayerState_Back:
+		m_modelRender.PlayAnimation(enAnimClip_Back, 0.3f);
+		m_modelRender.SetAnimationSpeed(2.0f);
+		break;
 	}
 }
 
@@ -151,6 +167,12 @@ void Player::ManageState()
 	case Player::enPlayerState_Run:
 		ProcessRunStateTransition();
 		break;
+	case Player::enPlayerState_Shot:
+		ProcessShotStateTransition();
+		break;
+	case Player::enPlayerState_Back:
+		ProcessBackStateTransition();
+		break;
 	}
 }
 
@@ -159,8 +181,8 @@ void Player::ProcessCommonStateTransition()
 	//Aボタンが押されたら
 	if (g_pad[0]->IsTrigger(enButtonA))
 	{
-		//ジャンプする
-		MakeBullet();
+		m_playerState = enPlayerState_Shot;
+		return;
 	}
 
 	//移動速度があったら
@@ -189,6 +211,23 @@ void Player::ProcessRunStateTransition()
 {
 	//共通のステートの遷移処理
 	ProcessCommonStateTransition();
+}
+
+void Player::ProcessShotStateTransition()
+{
+	if (m_modelRender.IsPlayingAnimation() == false)
+	{
+		m_playerState = enPlayerState_Back;
+	}
+}
+
+void Player::ProcessBackStateTransition()
+{
+	if (m_modelRender.IsPlayingAnimation() == false)
+	{
+		//ステートを遷移する。
+		ProcessCommonStateTransition();
+	}
 }
 
 void Player::Render(RenderContext& rc)
