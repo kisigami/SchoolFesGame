@@ -28,16 +28,16 @@ Player::~Player()
 void Player::InitAnimation()
 {
 	//アニメーションクリップをロードする
-	m_animClips[enAnimClip_Idle].Load("Assets/animData/player/idle.tka");
+	m_animClips[enAnimClip_Idle].Load("Assets/animData/gun/reroad.tka");
 	m_animClips[enAnimClip_Idle].SetLoopFlag(true);
-	m_animClips[enAnimClip_Run].Load("Assets/animData/player/run.tka");
-	m_animClips[enAnimClip_Run].SetLoopFlag(true);
 }
 
 bool Player::Start()
 {
+	InitAnimation();
+
 	//モデルの読み込み
-	m_modelRender.Init("Assets/modelData/gun/shotgun.tkm");
+	m_modelRender.Init("Assets/modelData/gun/shotgun.tkm", m_animClips, enAnimClip_Num);
 
 	m_position = { 0.0f,0.0f,0.0f };
 
