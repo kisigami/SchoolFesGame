@@ -2,7 +2,7 @@
 #include "Bullet.h"
 #include "GameCamera.h"
 #include "collision/CollisionObject.h"
-#include "Enemy.h"
+#include "player.h"
 
 Bullet::Bullet()
 {
@@ -17,16 +17,18 @@ Bullet::~Bullet()
 bool Bullet::Start()
 {
 	m_gameCamera = FindGO<GameCamera>("gamecamera");
-	m_enemy = FindGO<Enemy>("enemy");
+	m_player = FindGO<Player>("player");
 
 	m_moveSpeed = m_gameCamera->GetTargetPosition() - m_position;
 	m_moveSpeed.Normalize();
 	m_position += m_moveSpeed * 100.0f;
-	m_moveSpeed *= 2000.0f;
+	m_moveSpeed *= 1000.0f;
 
 	m_collisionObject = NewGO<CollisionObject>(0);
-	m_collisionObject->CreateSphere(m_position, Quaternion::Identity, 10.0f * m_scale.z);
-	m_collisionObject->SetName("bullet");
+	m_collisionObject->CreateSphere(m_position, Quaternion::Identity, 3.0f * m_scale.z);
+
+	m_collisionObject->SetName("bullet1");
+
 	m_collisionObject->SetIsEnableAutoDelete(false);
 
 	return true;

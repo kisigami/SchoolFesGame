@@ -101,22 +101,22 @@ private:
 	void ProcessShotStateTransition();
 
 	void ProcessBackStateTransition();
+
+	void OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName);
 	//アニメーションクリップの番号を表す
 	enum EnAnimationClip
 	{
-		enAnimClip_Idle,   //待機アニメーション
-		enAnimClip_Run,    //走りアニメーション
-		enAnimClip_Shot,
-		enAnimClip_Back,
+		enAnimClip_RifleIdle,   //待機アニメーション
+		enAnimClip_RifleRun,    //走りアニメーション
+		enAnimClip_RifleShot,
+		enAnimClip_RifleBack,
 		enAnimClip_Num     //アニメーションの数
 	};
-
+	FontRender m_fontRender;
 	EnPlayerState        m_playerState = enPlayerState_Idle;     //プレイヤーステート
 	Animation            m_animation;                            //アニメーション
 	AnimationClip        m_animClips[enAnimClip_Num];            //アニメーションクリップ
 	ModelRender          m_modelRender;                          //モデルレンダー
-	ModelRender          m_rightHandRender;
-	ModelRender          m_leftHandRender;
 	CharacterController  m_charaCon;                             //キャラクターコントローラー
 	Vector3              m_position;                             //座標
 	Vector3              m_scale;                                //大きさ
@@ -124,6 +124,8 @@ private:
 	Vector3              m_forward = Vector3::AxisZ;             //プレイヤーの前ベクトル
 	Vector3              m_right = Vector3::AxisX;
 	Quaternion           m_rotation;                             //回転
-	GameCamera*          m_gameCamera;                           //ゲームカメラ
+	GameCamera*          m_gameCamera = nullptr;                           //ゲームカメラ
+	float timer = 0.0f;
+	int bulletNum = 30;
 };
 

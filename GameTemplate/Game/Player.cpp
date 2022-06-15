@@ -28,14 +28,13 @@ Player::~Player()
 void Player::InitAnimation()
 {
 	//アニメーションクリップをロードする
-	m_animClips[enAnimClip_Idle].Load("Assets/animData/gun/idle.tka");
-	m_animClips[enAnimClip_Idle].SetLoopFlag(true);
-	m_animClips[enAnimClip_Run].Load("Assets/animData/gun/run.tka");
-	m_animClips[enAnimClip_Run].SetLoopFlag(true);
-	m_animClips[enAnimClip_Shot].Load("Assets/animData/gun/shot.tka");
-	m_animClips[enAnimClip_Shot].SetLoopFlag(false);
-	m_animClips[enAnimClip_Back].Load("Assets/animData/gun/back.tka");
-	m_animClips[enAnimClip_Back].SetLoopFlag(false);
+	m_animClips[enAnimClip_RifleIdle].Load("Assets/animData/rifle/idle.tka");
+	m_animClips[enAnimClip_RifleIdle].SetLoopFlag(true);
+	m_animClips[enAnimClip_RifleRun].Load("Assets/animData/rifle/run.tka");
+	m_animClips[enAnimClip_RifleRun].SetLoopFlag(true);
+	m_animClips[enAnimClip_RifleShot].Load("Assets/animData/rifle/shot.tka");
+	m_animClips[enAnimClip_RifleShot].SetLoopFlag(false);
+
 }
 
 bool Player::Start()
@@ -43,13 +42,12 @@ bool Player::Start()
 	InitAnimation();
 
 	//モデルの読み込み
-	m_modelRender.Init("Assets/modelData/gun/shotgun2.tkm", m_animClips, enAnimClip_Num);
+	m_modelRender.Init("Assets/modelData/gun/rifle/rifle2.tkm", m_animClips, enAnimClip_Num);
 
-	m_position = { 0.0f,0.0f,0.0f };
+	m_position = { 0.0f,2.0f,0.0f };
 
 	//更新
-	m_modelRender.SetPosition(m_position.x,55.0f, m_position.z);
-	m_modelRender.Update();
+	m_modelRender.SetPosition(m_position.x, m_position.y + 47.0f, m_position.z);
 
 	//カメラのインスタンスを取得
 	m_gameCamera = FindGO<GameCamera>("gamecamera");
@@ -57,11 +55,23 @@ bool Player::Start()
 	//キャラコンを初期化
 	m_charaCon.Init(CHARACON_RADIUS,CHARACON_HEIGHT, m_position);
 
+	m_modelRender.AddAnimationEvent([&](const wchar_t* clipName, const wchar_t* eventName) {
+		OnAnimationEvent(clipName, eventName);
+		});
+
+	m_modelRender.Update();
+
 	return true;
 }
 
 void Player::Update()
 {
+	wchar_t text[256];
+	swprintf_s(text, 256, L"%d", int(bulletNum));
+	m_fontRender.SetText(text);
+	m_fontRender.SetPosition(Vector3::Zero);
+	m_fontRender.SetScale(2.0f);
+
 	//回転処理
 	Rotation();
 	//移動処理
@@ -74,7 +84,7 @@ void Player::Update()
 	//モデルの更新
 	m_modelRender.Update();
 	//座標の更新
-	m_modelRender.SetPosition(m_position.x, 55.0f, m_position.z);
+	m_modelRender.SetPosition(m_position.x, m_position.y + 47.0f, m_position.z);
 	//回転の更新
 	m_modelRender.SetRotation(m_rotation);
 }
@@ -112,22 +122,36 @@ void Player::Move()
 	cameraForward.Normalize();
 	cameraRight.y = ZERO;
 	cameraRight.Normalize();
-	//カメラのベクトル×コントローラーの入力値×移動速度
-	m_moveSpeed += cameraForward * lStick_y * MOVE_SPEED;
-	m_moveSpeed += cameraRight * lStick_x * MOVE_SPEED;
-	m_moveSpeed.y = 0;
+
+	if (m_playerState != enPlayerState_Shot)
+	{
+		//カメラのベクトル×コントローラーの入力値×移動速度
+		m_moveSpeed += cameraForward * lStick_y * MOVE_SPEED;
+		m_moveSpeed += cameraRight * lStick_x * MOVE_SPEED;
+	}
+	else
+	{
+		m_moveSpeed += cameraForward * lStick_y * 65.0f;
+		m_moveSpeed += cameraRight * lStick_x * 65.0f;
+	}
+
+	m_moveSpeed.y -= 500.0f * g_gameTime->GetFrameDeltaTime();
+	if (m_position.y < 2.0f)
+	{
+		m_position.y = 2.0f;
+	}
 	//キャラコンを使用して、座標を更新する
 	m_position = m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
 }
 
 void Player::MakeBullet()
 {
-	//弾を作成する
-	Bullet* bullet = NewGO<Bullet>(0);
-	Vector3 bulletPosition = m_position;
-	bulletPosition.y += 60.0f;
-	bulletPosition += g_camera3D->GetRight() * 10.0f;
-	bullet->SetPosition(bulletPosition);
+		//弾を作成する
+		Bullet* bullet = NewGO<Bullet>(0);
+		Vector3 bulletPosition = m_position;
+		//bulletPosition.y += 47.0f;
+		bullet->SetPosition(bulletPosition);
+		bulletNum -= 1;
 }
 
 void Player::PlayAnimation()
@@ -136,22 +160,22 @@ void Player::PlayAnimation()
 	{
 		//待機ステートの時
 	case Player::enPlayerState_Idle:
-		m_modelRender.PlayAnimation(enAnimClip_Idle,0.3f);
+		m_modelRender.PlayAnimation(enAnimClip_RifleIdle,0.3f);
 		m_modelRender.SetAnimationSpeed(1.0f);
 		break;
-		//走りステートの時
+	//	//走りステートの時
 	case Player::enPlayerState_Run:
-		m_modelRender.PlayAnimation(enAnimClip_Run, 0.1f);
-		m_modelRender.SetAnimationSpeed(1.0f);
+		m_modelRender.PlayAnimation(enAnimClip_RifleRun, 0.1f);
+		m_modelRender.SetAnimationSpeed(0.8f);
 		break;
 	case Player::enPlayerState_Shot:
-		m_modelRender.PlayAnimation(enAnimClip_Shot, 0.3f);
-		m_modelRender.SetAnimationSpeed(1.2f);
-		break;
-	case Player::enPlayerState_Back:
-		m_modelRender.PlayAnimation(enAnimClip_Back, 0.3f);
+		m_modelRender.PlayAnimation(enAnimClip_RifleShot, 0.0f);
 		m_modelRender.SetAnimationSpeed(2.0f);
 		break;
+	//case Player::enPlayerState_Back:
+	//	m_modelRender.PlayAnimation(enAnimClip_Back, 0.3f);
+	//	m_modelRender.SetAnimationSpeed(2.0f);
+	//	break;
 	}
 }
 
@@ -163,25 +187,43 @@ void Player::ManageState()
 	case Player::enPlayerState_Idle:
 		ProcessIdleStateTransition();
 		break;
-		//走りステートの時
+	//	//走りステートの時
 	case Player::enPlayerState_Run:
 		ProcessRunStateTransition();
 		break;
 	case Player::enPlayerState_Shot:
 		ProcessShotStateTransition();
 		break;
-	case Player::enPlayerState_Back:
-		ProcessBackStateTransition();
-		break;
+	//case Player::enPlayerState_Back:
+	//	ProcessBackStateTransition();
+	//	break;
 	}
 }
 
 void Player::ProcessCommonStateTransition()
 {
-	//Aボタンが押されたら
-	if (g_pad[0]->IsTrigger(enButtonA))
+	if (m_charaCon.IsOnGround() == true)
 	{
-		m_playerState = enPlayerState_Shot;
+		//Aボタンが押されたら
+		if (g_pad[0]->IsTrigger(enButtonA))
+		{
+			m_moveSpeed.y += 200.0f;
+		}
+	}
+
+	if (bulletNum > 0)
+	{
+		//Aボタンが押されたら
+		if (g_pad[0]->IsPress(enButtonRB2))
+		{
+			m_playerState = enPlayerState_Shot;
+			return;
+		}
+	}
+
+	if (g_pad[0]->IsPress(enButtonX))
+	{
+		bulletNum = 30;
 		return;
 	}
 
@@ -217,7 +259,7 @@ void Player::ProcessShotStateTransition()
 {
 	if (m_modelRender.IsPlayingAnimation() == false)
 	{
-		m_playerState = enPlayerState_Back;
+		m_playerState = enPlayerState_Idle;
 	}
 }
 
@@ -230,8 +272,18 @@ void Player::ProcessBackStateTransition()
 	}
 }
 
+void Player::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName)
+{
+	if (wcscmp(eventName, L"shot_attack") == 0)
+	{
+		MakeBullet();
+	}
+
+}
+
 void Player::Render(RenderContext& rc)
 {
 	//モデルの描画
 	m_modelRender.Draw(rc);
+	m_fontRender.Draw(rc);
 }

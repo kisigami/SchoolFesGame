@@ -1,11 +1,17 @@
 #pragma once
 
 class GameCamera;
-class Enemy;
+class Player;
 
 class Bullet:public IGameObject
 {
 public:
+	enum EnBullet
+	{
+		enBullet_Normal,
+		enBullet_ShotGun,
+	};
+
 	Bullet();
 	~Bullet();
 	bool Start();
@@ -35,8 +41,8 @@ public:
 	{
 		m_scale = scale;
 	}
-private:
 
+	EnBullet m_bulletName = enBullet_ShotGun;
 	GameCamera* m_gameCamera = nullptr;
 	CollisionObject* m_collisionObject;
 	float m_timer = 0.0f;
@@ -44,6 +50,6 @@ private:
 	Vector3 m_moveSpeed;
 	Quaternion m_rotation;
 	Vector3 m_scale = Vector3::One;
-	Enemy* m_enemy = nullptr;
+	Player* m_player = nullptr;
 };
 

@@ -1,5 +1,7 @@
 #pragma once
 
+class Bullet;
+
 class Enemy:public IGameObject
 {
 public:
@@ -10,6 +12,7 @@ public:
 	{
 		enEnemyState_Idle,
 		enEnemyState_Run,
+		enEnemyState_Down,
 	};
 	Enemy();
 	~Enemy();
@@ -47,6 +50,7 @@ public:
 	{
 		enAnimClip_Idle,   //待機アニメーション
 		enAnimClip_Run,    //走りアニメーション
+		enAnimClip_Down,
 		enAnimClip_Num     //アニメーションの数
 	};
 
@@ -86,6 +90,10 @@ public:
 	/// 走りステートの遷移処理
 	/// </summary>
 	void ProcessRunStateTransition();
+	/// <summary>
+	/// ダウンステートの遷移処理
+	/// </summary>
+	void ProcessDownStateTransition();
 
 	ModelRender          m_modelRender;
 	Vector3              m_position;
@@ -97,6 +105,7 @@ public:
 	Animation            m_animation;                            //アニメーション
 	AnimationClip        m_animClips[enAnimClip_Num];            //アニメーションクリップ
 	CharacterController  m_charaCon; 
-	int                  m_hp = 3;
+	int                  m_hp = 2;
+	Bullet* m_bullet = nullptr;
 };
 

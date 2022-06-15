@@ -28,7 +28,14 @@ public:
 	{
 		return m_cameraPosition;
 	}
-
+	void SetTargetPosition(const Vector3& position)
+	{
+		m_targetPosition = position;
+	}
+	void SetToCameraPos(const Vector3& position)
+	{
+		m_toCameraPos = position;
+	}
 private:
 	ModelRender    m_modelRender;
 	FontRender    m_fontRender;

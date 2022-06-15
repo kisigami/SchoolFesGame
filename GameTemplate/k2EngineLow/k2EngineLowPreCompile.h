@@ -41,7 +41,7 @@ const int MAX_RENDERING_TARGET = D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT;	//ƒŒƒ“ƒ
 using namespace Microsoft::WRL;
 
 #define USE_FPS_LIMITTER		// —LŒø‚ÅFPS‚ÉãŒÀ‚ğİ‚¯‚éB
-static const int MAX_FPS = 60;	// Å‘åFPSBUSE_FPS_LIMITTER‚ª—LŒø‚È‚Æ‚«‚Ég—p‚³‚ê‚éB
+static const int MAX_FPS = 40;	// Å‘åFPSBUSE_FPS_LIMITTER‚ª—LŒø‚È‚Æ‚«‚Ég—p‚³‚ê‚éB
 #define ENABLE_DXR_ON_RTX_ONLY	// —LŒø‚ÅDXR‚ÍRTXƒVƒŠ[ƒY‚Ì‚İ—LŒøB
 
 #include "util/Noncopyable.h"

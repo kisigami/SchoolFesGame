@@ -6,11 +6,11 @@
 namespace
 {
 	const Vector3 TO_CAMERA_POS = { 0.0f, 0.0f, -10000.0f };  //注視点から視点へのベクトル
-	const float   HEAD_HEIGHT = 60.0f;					      //視点の高さ
-	const float   ROTATION_SPEED_X = 1.3f;                    //X軸のカメラの回転速度
-	const float   ROTATION_SPEED_Y = -1.3f;                   //Y軸のカメラの回転速度
-	const float   UP_MAX_POS = 0.6f;                          //上を向ける上限値
-	const float   DOWN_MAX_POS = -0.6;                        //下を向ける上限値
+	const float   HEAD_HEIGHT = 52.0f;					      //視点の高さ
+	const float   ROTATION_SPEED_X = 1.4f;                    //X軸のカメラの回転速度
+	const float   ROTATION_SPEED_Y = -1.4f;                   //Y軸のカメラの回転速度
+	const float   UP_MAX_POS = 0.8f;                          //上を向ける上限値
+	const float   DOWN_MAX_POS = -0.7;                        //下を向ける上限値
 }  
 
 GameCamera::GameCamera()
@@ -30,8 +30,8 @@ bool GameCamera::Start()
 
 	//注視点から視点までのベクトルを設定
 	m_toCameraPos.Set(TO_CAMERA_POS);
-
 	
+	g_camera3D->SetFar(10000.0f);
 	//プレイヤーのインスタンスを探す
 	m_player = FindGO<Player>("player");
 
@@ -43,11 +43,14 @@ void GameCamera::Update()
 	//注視点を計算する。
 	m_targetPosition = m_player->GetPosition();
 	m_targetPosition.y += HEAD_HEIGHT;
+
 	//視点を計算する
 	m_cameraPosition = m_player->GetPosition();
 	m_cameraPosition.y += HEAD_HEIGHT;
+	m_cameraPosition += g_camera3D->GetForward() * 4.0f;
 
 	Vector3 toCameraPosOld = m_toCameraPos;
+
 	//パッドの入力を使ってカメラを回す。
 	float x = g_pad[0]->GetRStickXF();
 	float y = g_pad[0]->GetRStickYF();

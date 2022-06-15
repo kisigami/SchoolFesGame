@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Enemy.h"
+#include "Bullet.h"
 
 namespace
 {
@@ -8,12 +9,10 @@ namespace
 
 Enemy::Enemy()
 {
-
 }
 
 Enemy::~Enemy()
 {
-
 }
 
 void Enemy::InitAnimation()
@@ -23,18 +22,18 @@ void Enemy::InitAnimation()
 	m_animClips[enAnimClip_Idle].SetLoopFlag(true);
 	m_animClips[enAnimClip_Run].Load("Assets/animData/enemy/run.tka");
 	m_animClips[enAnimClip_Run].SetLoopFlag(true);
+	m_animClips[enAnimClip_Down].Load("Assets/animData/enemy/down.tka");
+	m_animClips[enAnimClip_Down].SetLoopFlag(false);
 }
-
 
 bool Enemy::Start()
 {
-	//InitAnimation();
+	InitAnimation();
 
-	m_modelRender.Init("Assets/modelData/gun/shotgun2.tkm"/*, m_animClips, enAnimClip_Num*/);
-	m_position = { 100.0f,0.0f,500.0f };
-	m_charaCon.Init(12.0f, 45.0f, m_position);
+	m_modelRender.Init("Assets/modelData/enemy/enemy.tkm",m_animClips,enAnimClip_Num);
 
 	m_modelRender.Update();
+
 
 	return true;
 }
@@ -43,9 +42,9 @@ void Enemy::Update()
 {
 	PlayAnimation();
 	Collision();
+	ManageState();
 
 	m_modelRender.SetPosition(m_position);
-	
 	m_modelRender.Update();
 }
 
@@ -61,21 +60,32 @@ void Enemy::Move()
 
 void Enemy::Collision()
 {
-	const auto& collisions = g_collisionObjectManager->FindCollisionObjects("bullet");
-	for (auto collision : collisions)
+	if (m_enemyState == enEnemyState_Down)
 	{
-		//コリジョンとキャラコンが衝突したら。
-		if (collision->IsHit(m_charaCon))
+		return;
+	}
+	{
+		//敵の攻撃用のコリジョンの配列を取得する。
+		const auto& collisions = g_collisionObjectManager->FindCollisionObjects("bullet1");
+		//配列をfor文で回す。
+		for (auto collision : collisions)
 		{
-			//HPを減らす。
-			m_hp -= 1;
-
-			//HPが0になったら。
-			if (m_hp <= 0)
+			//コリジョンとキャラコンが衝突したら。
+			if (collision->IsHit(m_charaCon))
 			{
-				DeleteGO(this);
+				//HPを減らす。
+				m_hp -= 1;
+				//コリジョンを非アクティブにする
+				collision->Dead();
+
+				//HPが0になったら。
+				if (m_hp <= 0)
+				{
+					m_charaCon.RemoveRigidBoby();
+					m_enemyState = enEnemyState_Down;
+				}
+				return;
 			}
-			return;
 		}
 	}
 }
@@ -95,6 +105,13 @@ void Enemy::ProcessRunStateTransition()
 	ProcessCommonStateTransition();
 }
 
+void Enemy::ProcessDownStateTransition()
+{
+	if (m_modelRender.IsPlayingAnimation() == false)
+	{
+	}
+}
+
 void Enemy::PlayAnimation()
 {
 	switch (m_enemyState)
@@ -107,6 +124,10 @@ void Enemy::PlayAnimation()
 		//走りステートの時
 	case Enemy::enEnemyState_Run:
 		m_modelRender.PlayAnimation(enAnimClip_Run, 0.1f);
+		m_modelRender.SetAnimationSpeed(1.0f);
+		break;
+	case Enemy::enEnemyState_Down:
+		m_modelRender.PlayAnimation(enAnimClip_Down, 0.1f);
 		m_modelRender.SetAnimationSpeed(1.0f);
 		break;
 	}
@@ -123,6 +144,9 @@ void Enemy::ManageState()
 		//走りステートの時
 	case Enemy::enEnemyState_Run:
 		ProcessRunStateTransition();
+		break;
+	case Enemy::enEnemyState_Down:
+		ProcessDownStateTransition();
 		break;
 	}
 }
