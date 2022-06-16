@@ -1,16 +1,15 @@
 #pragma once
 
-class GameCamera;
-class Player;
+//クラス宣言
+class GameCamera;    //ゲームカメラ
+class Player;        //プレイヤー
 
+/// <summary>
+/// 弾クラス
+/// </summary>
 class Bullet:public IGameObject
 {
 public:
-	enum EnBullet
-	{
-		enBullet_Normal,
-		enBullet_ShotGun,
-	};
 
 	Bullet();
 	~Bullet();
@@ -42,14 +41,13 @@ public:
 		m_scale = scale;
 	}
 
-	EnBullet m_bulletName = enBullet_ShotGun;
-	GameCamera* m_gameCamera = nullptr;
-	CollisionObject* m_collisionObject;
-	float m_timer = 0.0f;
-	Vector3 m_position;
-	Vector3 m_moveSpeed;
-	Quaternion m_rotation;
-	Vector3 m_scale = Vector3::One;
-	Player* m_player = nullptr;
+	GameCamera*        m_gameCamera = nullptr;        //ゲームカメラ
+	CollisionObject*   m_collisionObject = nullptr;   //コリジョンオブジェクト
+	Player*            m_player = nullptr;            //プレイヤー
+	float              m_deleteTimer = 0.0f;          //削除タイマー
+	Vector3            m_position;                    //座標
+	Vector3            m_moveSpeed;                   //移動速度
+	Quaternion         m_rotation;                    //回転
+	Vector3            m_scale = Vector3::One;        //大きさ
 };
 

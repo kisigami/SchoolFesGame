@@ -225,6 +225,8 @@
   <ItemGroup>
     <ClCompile Include="BackGround.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="Demo.cpp" />
+    <ClCompile Include="DemoRender.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -240,6 +242,8 @@
   <ItemGroup>
     <ClInclude Include="BackGround.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="Demo.h" />
+    <ClInclude Include="DemoRender.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameCamera.h" />
     <ClInclude Include="Game.h" />

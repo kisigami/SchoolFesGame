@@ -1,8 +1,11 @@
 #pragma once
 
 //クラス宣言
-class GameCamera;
+class GameCamera;  //ゲームカメラクラス
 
+/// <summary>
+/// プレイヤークラス
+/// </summary>
 class Player :public IGameObject
 {
 public:
@@ -13,8 +16,7 @@ public:
 	{
 		enPlayerState_Idle,   //待機ステート
 		enPlayerState_Run,    //走りステート
-		enPlayerState_Shot,
-		enPlayerState_Back
+		enPlayerState_Shot,   //射撃ステート
 	};
 
 	Player();
@@ -32,26 +34,6 @@ public:
 		m_position = position;
 	}
 	/// <summary>
-	/// 座標を取得
-	/// </summary>
-	/// <returns>座標</returns>
-	const Vector3& GetPosition() const
-	{
-		return m_position;
-	}
-	const Quaternion& GetRotation() const
-	{
-		return m_rotation;
-	}
-	/// <summary>
-	/// 右座標を取得
-	/// </summary>
-	/// <returns>右座標</returns>
-	const Vector3& GetRight() const
-	{
-		return m_right;
-	}
-	/// <summary>
 	/// 回転を設定
 	/// </summary>
 	/// <param name="rotation">回転</param>
@@ -59,10 +41,24 @@ public:
 	{
 		m_rotation = rotation;
 	}
+	/// <summary>
+	/// 座標を取得
+	/// </summary>
+	/// <returns>座標</returns>
+	const Vector3& GetPosition() const
+	{
+		return m_position;
+	}
+	/// <summary>
+	/// 回転を取得
+	/// </summary>
+	/// <returns>回転</returns>
+	const Quaternion& GetRotation() const
+	{
+		return m_rotation;
+	}
 
 private:
-	void MakeBullet();
-
 	/// <summary>
 	/// アニメーション初期化
 	/// </summary>
@@ -75,6 +71,10 @@ private:
 	/// 移動処理
 	/// </summary>
 	void Move();
+	/// <summary>
+	/// 弾作成処理
+	/// </summary>
+	void MakeBullet();
 	/// <summary>
 	/// アニメーションの再生
 	/// </summary>
@@ -99,20 +99,22 @@ private:
 	/// 射撃ステートの遷移処理
 	/// </summary>
 	void ProcessShotStateTransition();
-
-	void ProcessBackStateTransition();
-
+	/// <summary>
+	///
+	/// </summary>
 	void OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName);
+
 	//アニメーションクリップの番号を表す
 	enum EnAnimationClip
 	{
 		enAnimClip_RifleIdle,   //待機アニメーション
 		enAnimClip_RifleRun,    //走りアニメーション
-		enAnimClip_RifleShot,
-		enAnimClip_RifleBack,
-		enAnimClip_Num     //アニメーションの数
+		enAnimClip_RifleShot,   //射撃アニメーション
+		enAnimClip_Num          //アニメーションの数
 	};
-	FontRender m_fontRender;
+
+	FontRender           m_fontRender;
+	FontRender           font;
 	EnPlayerState        m_playerState = enPlayerState_Idle;     //プレイヤーステート
 	Animation            m_animation;                            //アニメーション
 	AnimationClip        m_animClips[enAnimClip_Num];            //アニメーションクリップ
@@ -122,10 +124,8 @@ private:
 	Vector3              m_scale;                                //大きさ
 	Vector3              m_moveSpeed;                            //移動速度
 	Vector3              m_forward = Vector3::AxisZ;             //プレイヤーの前ベクトル
-	Vector3              m_right = Vector3::AxisX;
 	Quaternion           m_rotation;                             //回転
-	GameCamera*          m_gameCamera = nullptr;                           //ゲームカメラ
-	float timer = 0.0f;
-	int bulletNum = 30;
+	GameCamera*          m_gameCamera = nullptr;                 //ゲームカメラ
+	int                  m_bulletNum = 30;                       //残弾数
 };
 

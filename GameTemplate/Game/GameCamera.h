@@ -1,8 +1,11 @@
 #pragma once
 
 //クラス宣言
-class Player;
+class Player;   //プレイヤークラス
 
+/// <summary>
+/// ゲームカメラクラス
+/// </summary>
 class GameCamera : public IGameObject
 {
 public:
@@ -20,29 +23,28 @@ public:
 	{
 		return m_targetPosition;
 	}
+	/// <summary>
+	/// 視点から注視点のベクトルを取得
+	/// </summary>
+	/// <returns>ベクトル</returns>
 	const Vector3& GetToCameraPos() const
 	{
 		return m_toCameraPos;
 	}
+	/// <summary>
+	/// 視点の座標を取得
+	/// </summary>
+	/// <returns>座標</returns>
 	const Vector3& GetCameraPosition() const
 	{
 		return m_cameraPosition;
 	}
-	void SetTargetPosition(const Vector3& position)
-	{
-		m_targetPosition = position;
-	}
-	void SetToCameraPos(const Vector3& position)
-	{
-		m_toCameraPos = position;
-	}
+	
 private:
-	ModelRender    m_modelRender;
-	FontRender    m_fontRender;
 	Player*       m_player = nullptr;		        //プレイヤー。
-	Vector3       m_toCameraPos = Vector3::One;     //注視点から視点へのベクトル
+	Vector3       m_toCameraPos = Vector3::One;     //視点から注視点へのベクトル
 	Vector3       m_targetPosition;                 //注視点の座標
-	Vector3       m_cameraPosition;
-	SpriteRender  m_spriteRender;
+	Vector3       m_cameraPosition;                 //視点の座標
+	SpriteRender  m_spriteRender;                   //スプライトレンダー
 };
 

@@ -1,7 +1,13 @@
 #pragma once
 
-class Bullet;
+//クラス宣言
+class Bullet;   //弾
+class Enemy;
+class Player;
 
+/// <summary>
+/// エネミークラス
+/// </summary>
 class Enemy:public IGameObject
 {
 public:
@@ -10,10 +16,13 @@ public:
 	/// </summary>
 	enum EnEnemyState
 	{
-		enEnemyState_Idle,
-		enEnemyState_Run,
-		enEnemyState_Down,
+		enEnemyState_Idle,         //待機ステート
+		enEnemyState_Run,          //走りステート
+		enEnemyState_Chase,        //追跡ステート
+		enEnemyState_Attack,       //攻撃ステート
+		enEnemyState_Down,         //ダウンステート
 	};
+
 	Enemy();
 	~Enemy();
 	bool Start();
@@ -50,7 +59,8 @@ public:
 	{
 		enAnimClip_Idle,   //待機アニメーション
 		enAnimClip_Run,    //走りアニメーション
-		enAnimClip_Down,
+		enAnimClip_Attack, //攻撃アニメーション
+		enAnimClip_Down,   //ダウンアニメーション
 		enAnimClip_Num     //アニメーションの数
 	};
 
@@ -67,9 +77,17 @@ public:
 	/// </summary>
 	void Move();
 	/// <summary>
+	/// 追跡処理
+	/// </summary>
+	void Chase();
+	/// <summary>
 	/// 当たり判定
 	/// </summary>
 	void Collision();
+	/// <summary>
+	/// 攻撃処理
+	/// </summary>
+	void Attack();
 	/// <summary>
 	/// アニメーションの再生
 	/// </summary>
@@ -91,21 +109,26 @@ public:
 	/// </summary>
 	void ProcessRunStateTransition();
 	/// <summary>
+	///	攻撃ステートの遷移処理
+	/// </summary>
+	void ProcessAttackStateTransition();
+	/// <summary>
 	/// ダウンステートの遷移処理
 	/// </summary>
 	void ProcessDownStateTransition();
 
-	ModelRender          m_modelRender;
-	Vector3              m_position;
-	Vector3              m_scale;
-	Vector3              m_moveSpeed;
-	Vector3              m_forward = Vector3::AxisZ;
-	Quaternion           m_rotation;
-	EnEnemyState         m_enemyState = enEnemyState_Idle;     //プレイヤーステート
-	Animation            m_animation;                            //アニメーション
-	AnimationClip        m_animClips[enAnimClip_Num];            //アニメーションクリップ
-	CharacterController  m_charaCon; 
-	int                  m_hp = 2;
-	Bullet* m_bullet = nullptr;
+	ModelRender          m_modelRender;                         //モデルレンダー
+	Vector3              m_position;                            //座標
+	Vector3              m_scale;                               //大きさ
+	Vector3              m_moveSpeed;                           //移動速度
+	Vector3              m_forward = Vector3::AxisZ;            //エネミーの前方向のベクトル
+	Quaternion           m_rotation;                            //回転
+	EnEnemyState         m_enemyState = enEnemyState_Idle;      //エネミーステート
+	Animation            m_animation;                           //アニメーション
+	AnimationClip        m_animClips[enAnimClip_Num];           //アニメーションクリップ
+	CharacterController  m_charaCon;                            //キャラコン
+	int                  m_hp = 2;                              //HP
+	Bullet*              m_bullet = nullptr;                    //弾
+	Player*              m_player = nullptr;                    //プレイヤー
 };
 
