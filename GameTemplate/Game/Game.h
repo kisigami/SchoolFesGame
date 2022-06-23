@@ -1,5 +1,11 @@
 #pragma once
 
+struct EnemyInformation
+{
+	int    s_enemyNo = 0;
+	bool   s_deadFlag = true;
+};
+
 #include "Level3DRender/LevelRender.h"
 
 //クラス宣言
@@ -24,5 +30,6 @@ private:
 	BackGround* m_backGround = nullptr;   //背景
 	GameCamera* m_gameCamera = nullptr;   //ゲームカメラ
 	Enemy*      m_enemy = nullptr;        //エネミー
+	std::map<const int, EnemyInformation> m_enemyMap;
 };
 

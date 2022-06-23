@@ -8,8 +8,8 @@
 namespace
 {
 	const float MOVE_SPEED = 1000.0f;    //移動速度
-	const float COLISION_SIZE = 2.0f;    //コリジョンの大きさ
-	const float DELEYE_TIME = 3.0f;      //削除時間
+	const float COLISION_SIZE = 3.0f;    //コリジョンの大きさ
+	const float DELEYE_TIME = 1.5f;      //削除時間
 }
 
 Bullet::Bullet()
@@ -19,6 +19,7 @@ Bullet::Bullet()
 
 Bullet::~Bullet()
 {
+	//コリジョンを削除する
 	DeleteGO(m_collisionObject);
 }
 
@@ -51,13 +52,10 @@ void Bullet::Update()
 {	
 	//移動速度で座標を移動させる
 	m_position += m_moveSpeed * g_gameTime->GetFrameDeltaTime();
-
 	//削除タイマーを加算する。
 	m_deleteTimer += g_gameTime->GetFrameDeltaTime();
-
 	//座標を設定する
 	m_collisionObject->SetPosition(m_position);
-
 	//削除タイマーが削除時間を超えたら
 	if (m_deleteTimer >= DELEYE_TIME)
 	{

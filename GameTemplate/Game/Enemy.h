@@ -1,5 +1,11 @@
 #pragma once
 
+//経路探索で使うやつ
+#include "tkFile/TknFile.h"
+#include "AI/PathFinding/NaviMesh.h"
+#include "AI/PathFinding/Path.h"
+#include "AI/PathFinding/PathFinding.h"
+
 //クラス宣言
 class Bullet;   //弾
 class Enemy;
@@ -37,6 +43,10 @@ public:
 	{
 		m_position = position;
 	}
+	void SetMyNumber(const int& number)
+	{
+		m_myNumber = number;
+	}
 	/// <summary>
 	/// 座標を取得
 	/// </summary>
@@ -73,6 +83,10 @@ public:
 	/// </summary>
 	void Rotation();
 	/// <summary>
+	/// 経路探索処理
+	/// </summary>
+	void PathMove();
+	/// <summary>
 	/// 移動処理
 	/// </summary>
 	void Move();
@@ -88,6 +102,18 @@ public:
 	/// 攻撃処理
 	/// </summary>
 	void Attack();
+	/// <summary>
+	/// 攻撃のコリジョンを作成する
+	/// </summary>
+	void MakeAttackCollision();
+	/// <summary>
+	/// 死亡後の処理
+	/// </summary>
+	void DeathSpawn();
+	/// <summary>
+	/// 死亡後の処理
+	/// </summary>
+	void Spawn();
 	/// <summary>
 	/// アニメーションの再生
 	/// </summary>
@@ -105,6 +131,10 @@ public:
 	/// </summary>
 	void ProcessIdleStateTransition();
 	/// <summary>
+	/// 追跡ステートの遷移処理
+	/// </summary>
+	void ProcessChaseStateTransition();
+	/// <summary>
 	/// 走りステートの遷移処理
 	/// </summary>
 	void ProcessRunStateTransition();
@@ -116,8 +146,26 @@ public:
 	/// ダウンステートの遷移処理
 	/// </summary>
 	void ProcessDownStateTransition();
-
+	/// <summary>
+	/// アニメーションのキーを設定する処理
+	/// </summary>
+	/// <param name="clipName">クリップ名</param>
+	/// <param name="eventName">イベント名</param>
+	void OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName);
+	/// <summary>
+	/// プレイヤーからみえていないか？
+	/// </summary>
+	/// <returns>trueなら見えた</returns>
+	void CantLookMe();
+	/// <summary>
+	/// 攻撃できるか？
+	/// </summary>
+	const bool CanAttack() const;
+	
+	
+	int                  m_myNumber = 0;                        //マイナンバー
 	ModelRender          m_modelRender;                         //モデルレンダー
+	LevelRender          m_levelRender;                         //レベルレンダー
 	Vector3              m_position;                            //座標
 	Vector3              m_scale;                               //大きさ
 	Vector3              m_moveSpeed;                           //移動速度
@@ -127,8 +175,21 @@ public:
 	Animation            m_animation;                           //アニメーション
 	AnimationClip        m_animClips[enAnimClip_Num];           //アニメーションクリップ
 	CharacterController  m_charaCon;                            //キャラコン
-	int                  m_hp = 2;                              //HP
+	int                  m_hp = 5;                              //HP
 	Bullet*              m_bullet = nullptr;                    //弾
 	Player*              m_player = nullptr;                    //プレイヤー
+	bool                m_mitukatta = false;                    //見つかったか
+	SphereCollider	    m_sphereCollider;                       //スヒアコライダー
+	bool                ttt = false;                            //flag
+	bool                m_attacking = false;                    //攻撃中か
+	int				    m_pumchBoneId = -1;                     //パンチのボーン
+	bool                m_deadFlag = true;                      //死亡しているか
+
+	//経路探索で使うやつ
+	TknFile m_tknFile;
+	nsAI::NaviMesh m_nvmMesh;
+	nsAI::Path m_path;
+	nsAI::PathFinding m_pathFiding;
+	float m_pathTimer = 200.0f;
 };
 

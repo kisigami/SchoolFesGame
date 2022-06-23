@@ -39,10 +39,17 @@ public:
 	{
 		return m_cameraPosition;
 	}
-	
+
+	const Quaternion& GetRotation() const
+	{
+		return m_rotation;
+	}
+
 private:
+	ModelRender   m_modelRender;
+	Quaternion    m_rotation;
 	Player*       m_player = nullptr;		        //プレイヤー。
-	Vector3       m_toCameraPos = Vector3::One;     //視点から注視点へのベクトル
+	Vector3       m_toCameraPos;     //視点から注視点へのベクトル
 	Vector3       m_targetPosition;                 //注視点の座標
 	Vector3       m_cameraPosition;                 //視点の座標
 	SpriteRender  m_spriteRender;                   //スプライトレンダー

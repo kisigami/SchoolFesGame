@@ -17,8 +17,6 @@
     <ClCompile Include="BackGround.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Enemy.cpp" />
-    <ClCompile Include="Demo.cpp" />
-    <ClCompile Include="DemoRender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -31,7 +29,5 @@
     <ClInclude Include="BackGround.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Enemy.h" />
-    <ClInclude Include="Demo.h" />
-    <ClInclude Include="DemoRender.h" />
   </ItemGroup>
 </Project>

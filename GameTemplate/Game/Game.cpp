@@ -25,7 +25,7 @@ bool Game::Start()
 
 	//プレイヤーを作成する
 	m_player = NewGO<Player>(0, "player");
-	m_enemy = NewGO<Enemy>(0, "enemy");
+
 	//ステージのレベルの読み込み
 	m_levelRender.Init("Assets/level3D/stage.tkl", [&](LevelObjectData& objData)
 		{
@@ -39,15 +39,18 @@ bool Game::Start()
 				return true;
 			}
 
-			////オブジェクトの名前が「enemy」だったら
-			//else if (objData.ForwardMatchName(L"enemy") == true)
-			//{
-			//	//エネミーを作成する
-			//	m_enemy = NewGO<Enemy>(0, "enemy");
-			//	//座標を設定する
-			//	m_enemy->SetPosition(objData.position);
-			//	return true;
-			//}
+			//オブジェクトの名前が「enemy」だったら
+			else if (objData.ForwardMatchName(L"enemy") == true)
+			{
+				//エネミーを作成する
+				auto enemy = NewGO<Enemy>(0, "enemy");
+				//座標を設定する
+				enemy->SetPosition(objData.position);
+				//番号を設定する
+				int number = _wtoi(&objData.name[5]);
+				enemy->SetMyNumber(number);
+				return true;
+			}
 			return true;
 		});
 
