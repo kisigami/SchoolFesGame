@@ -13,6 +13,7 @@ class Player;        //プレイヤークラス
 class BackGround;    //背景クラス
 class GameCamera;    //ゲームカメラクラス
 class Enemy;         //エネミークラス
+class Fade;
 
 
 class Game : public IGameObject
@@ -30,6 +31,6 @@ private:
 	BackGround* m_backGround = nullptr;   //背景
 	GameCamera* m_gameCamera = nullptr;   //ゲームカメラ
 	Enemy*      m_enemy = nullptr;        //エネミー
-	std::map<const int, EnemyInformation> m_enemyMap;
+	Fade*       m_fade = nullptr;
 };
 

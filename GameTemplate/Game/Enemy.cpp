@@ -456,13 +456,13 @@ void Enemy::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName)
 {
 	(void)clipName;
 	//キーの名前が「attack_start」なら
-	if (wcscmp(eventName, L"attack_start") == true)
+	if (wcscmp(eventName, L"attack_start") == 0)
 	{
 		//攻撃中
 		m_attacking = true;
 	}
 	//キーの名前が「attack_end」なら
-	else if (wcscmp(eventName, L"attack_end") == true) 
+	else if (wcscmp(eventName, L"attack_end") == 0) 
 	{
 		//攻撃中じゃない
 		m_attacking = false;

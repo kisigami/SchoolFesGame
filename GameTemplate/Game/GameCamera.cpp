@@ -33,7 +33,7 @@ bool GameCamera::Start()
 	//画像の読み込み
 	m_modelRender.Init("Assets/modelData/bullet/bullet.tkm");
 
-	m_spriteRender.Init("Assets/sprite/dot.dds", SPRITE_W, SPRITE_H);
+	m_spriteRender.Init("Assets/sprite/dot/dot.dds", SPRITE_W, SPRITE_H);
 	//注視点から視点までのベクトルを設定
 	m_toCameraPos.Set(TO_CAMERA_POS);
 

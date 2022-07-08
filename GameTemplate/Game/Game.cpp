@@ -5,6 +5,7 @@
 #include "BackGround.h"
 #include "GameCamera.h"
 #include "Enemy.h"
+#include "Fade.h"
 
 Game::Game()
 {
@@ -42,17 +43,20 @@ bool Game::Start()
 			//オブジェクトの名前が「enemy」だったら
 			else if (objData.ForwardMatchName(L"enemy") == true)
 			{
-				//エネミーを作成する
-				auto enemy = NewGO<Enemy>(0, "enemy");
-				//座標を設定する
-				enemy->SetPosition(objData.position);
-				//番号を設定する
-				int number = _wtoi(&objData.name[5]);
-				enemy->SetMyNumber(number);
-				return true;
+				////エネミーを作成する
+				//auto enemy = NewGO<Enemy>(0, "enemy");
+				////座標を設定する
+				//enemy->SetPosition(objData.position);
+				////番号を設定する
+				//int number = _wtoi(&objData.name[5]);
+				//enemy->SetMyNumber(number);
+				//return true;
 			}
 			return true;
 		});
+
+	m_fade = FindGO<Fade>("fade");
+	m_fade->StartFadeIn();
 
 	return true;
 }

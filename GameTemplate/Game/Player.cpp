@@ -8,20 +8,20 @@
 
 namespace
 {
-	const float MODEL_POSITION_Y = 47.0f;            //モデルの座標
-	const float ZERO = 0.0f;                         //0.0f
-	const float CHARACON_RADIUS = 20.0f;             //キャラコンの半径
-	const float CHARACON_HEIGHT = 50.0f;             //キャラコンの高さ
-	const float MOVE_SPEED = 300.0f;                 //移動速度
-	const float SHOT_MOVE_SPEED = 65.0f;             //射撃ステートの移動速度
-	const float MOVE_SPEED_MINIMUMVALUE = 0.001f;    //移動速度の最低値
-	const float JUMP_POWER = 200.0f;                 //ジャンプ力
-	const float GRAVITY = 500.0f;                    //重力
-	const float IDLE_ANIMATION_SPEED = 1.0f;         //待機アニメーションの再生速度
-	const float IDLE_ANIMATION_INTERPOLATE = 0.3f;   //待機アニメーションの補完時間
-	const float RUN_ANIMATION_SPEED = 0.8f;          //走りアニメーションの再生時間
-	const float RUN_ANIMATION_INTERPOLATE = 0.1f;    //走りアニメーションの補完時間
-	const float SHOT_ANIMATION_SPEED = 2.0f;         //射撃アニメーションの再生時間
+	const float MODEL_POSITION_Y = 47.0f;                       //モデルの座標
+	const float ZERO = 0.0f;								              //0.0f
+	const float CHARACON_RADIUS = 20.0f;                      //キャラコンの半径
+	const float CHARACON_HEIGHT = 50.0f;                      //キャラコンの高さ
+	const float MOVE_SPEED = 300.0f;                              //移動速度
+	const float SHOT_MOVE_SPEED = 65.0f;                      //射撃ステートの移動速度
+	const float MOVE_SPEED_MINIMUMVALUE = 0.001f;     //移動速度の最低値
+	const float JUMP_POWER = 200.0f;                             //ジャンプ力
+	const float GRAVITY = 500.0f;                                   //重力
+	const float IDLE_ANIMATION_SPEED = 1.0f;                //待機アニメーションの再生速度
+	const float IDLE_ANIMATION_INTERPOLATE = 0.3f;     //待機アニメーションの補完時間
+	const float RUN_ANIMATION_SPEED = 0.8f;                //走りアニメーションの再生時間
+	const float RUN_ANIMATION_INTERPOLATE = 0.1f;     //走りアニメーションの補完時間
+	const float SHOT_ANIMATION_SPEED = 2.0f;              //射撃アニメーションの再生時間
 	const float SHOT_ANIMATION_INTERPOLATE = 0.1f;   //射撃アニメーションの補完時間
 }
 
@@ -42,6 +42,8 @@ void Player::InitAnimation()
 	m_animClips[enAnimClip_RifleIdle].SetLoopFlag(true);
 	m_animClips[enAnimClip_RifleRun].Load("Assets/animData/ar/walk.tka");
 	m_animClips[enAnimClip_RifleRun].SetLoopFlag(true);
+	m_animClips[enAnimClip_RifleShot].Load("Assets/animData/ar/shot.tka");
+	m_animClips[enAnimClip_RifleShot].SetLoopFlag(false);
 }
 
 bool Player::Start()
@@ -55,6 +57,10 @@ bool Player::Start()
 	m_modelRender.Init("Assets/modelData/gun/ar/ar3.tkm",m_animClips,enAnimClip_Num);
 	//座標に原点を代入する
 	m_position = Vector3::Zero;
+	//アニメーションイベント用の関数を設定する。
+	m_modelRender.AddAnimationEvent([&](const wchar_t* clipName, const wchar_t* eventName) {
+		OnAnimationEvent(clipName, eventName);
+	});
 	//エフェクトを読み込む
 	EffectEngine::GetInstance()->ResistEffect(1, u"Assets/effect/efk/smoke.efk");
 	//座標の設定
@@ -77,7 +83,6 @@ void Player::Update()
 	m_fontRender.SetScale(2.3f);
 	m_fontRender.SetColor(Vector4(1.0f, 1.0f, 0.0f, 1.0f));
 
-	Shot();
 	//回転処理
 	Rotation();
 	//移動処理
@@ -94,12 +99,7 @@ void Player::Update()
 
 void Player::Shot()
 {
-	if (m_playerState != enPlayerState_Shot)
-	{
-		return;
-	}
-	MakeBullet();
-	EffectPlay();
+
 }
 
 void Player::EffectPlay()
@@ -248,6 +248,8 @@ void Player::PlayAnimation()
 		break;
 		//射撃ステートの時
 	case Player::enPlayerState_Shot:
+		m_modelRender.PlayAnimation(enAnimClip_RifleShot, SHOT_ANIMATION_INTERPOLATE);
+		m_modelRender.SetAnimationSpeed(SHOT_ANIMATION_SPEED);
 		break;
 	}
 }
@@ -281,8 +283,10 @@ void Player::ManageState()
 
 void Player::ProcessCommonStateTransition()
 {
-	if (g_pad[0]->IsTrigger(enButtonA))
+	//Aボタンが押されたら
+	if (g_pad[0]->IsPress(enButtonA))
 	{
+		//射撃ステートに移行する
 		m_playerState = enPlayerState_Shot;
 		return;
 	}
@@ -318,8 +322,11 @@ void Player::ProcessRunStateTransition()
 
 void Player::ProcessShotStateTransition()
 {
-	//待機ステートに移行する
-	m_playerState = enPlayerState_Idle;
+	if (m_modelRender.IsPlayingAnimation() == false)
+	{
+		//待機ステートに移行する
+		m_playerState = enPlayerState_Idle;
+	}
 }
 
 void Player::ProcessReceiveDamageStateTransition()
@@ -344,7 +351,12 @@ void Player::ProcessDownStateTransition()
 
 void Player::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName)
 {
-
+	(void)clipName;
+	//キーの名前が「attack_start」なら
+	if (wcscmp(eventName, L"shot") == 0)
+	{
+		MakeBullet();
+	}
 }
 
 void Player::Render(RenderContext& rc)
