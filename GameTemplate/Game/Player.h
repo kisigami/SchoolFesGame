@@ -10,18 +10,6 @@ class Enemy;       //エネミークラス
 class Player :public IGameObject
 {
 public:
-	/// <summary>
-	/// プレイヤーステート
-	/// </summary>
-	enum EnPlayerState
-	{
-		enPlayerState_Idle,            //待機ステート
-		enPlayerState_Run,             //走りステート
-		enPlayerState_Shot,            //射撃ステート
-		enPlayerState_ReceiveDamage,   //被ダメージステート
-		enPlayerState_Down,            //ダウンステート
-	};
-
 	Player();
 	~Player();
 	bool Start();
@@ -60,8 +48,30 @@ public:
 	{
 		return m_rotation;
 	}
-
+	/// <summary>
+	/// HPを取得
+	/// </summary>
+	/// <returns>HP</returns>
+	const int& GetHP() const
+	{
+		return m_hp;
+	}
+	const Vector3& GetForward() const
+	{
+		return m_forward;
+	}
 private:
+	/// <summary>
+	/// プレイヤーステート
+	/// </summary>
+	enum EnPlayerState
+	{
+		enPlayerState_Idle,            //待機ステート
+		enPlayerState_Run,             //走りステート
+		enPlayerState_Shot,            //射撃ステート
+		enPlayerState_ReceiveDamage,   //被ダメージステート
+		enPlayerState_Down,            //ダウンステート
+	};
 	/// <summary>
 	/// アニメーション初期化
 	/// </summary>
@@ -152,5 +162,7 @@ private:
 	float                m_bulletNum = 30;                       //残弾数
 	int                  m_hp = 100;                             //ヒットポイント
 	float                m_receiveDamageTimer = 1.0f;            //無敵タイマー
+	float x = 0.0f;
+	Vector3 m_toCameraPos;
 };
 

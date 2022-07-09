@@ -7,6 +7,8 @@
 #include "Enemy.h"
 #include "Fade.h"
 
+#include "PlayerUi.h"
+
 Game::Game()
 {
 
@@ -23,9 +25,10 @@ bool Game::Start()
 {
 	//ゲームカメラを作成する
 	m_gameCamera = NewGO<GameCamera>(0, "gamecamera");
-
 	//プレイヤーを作成する
 	m_player = NewGO<Player>(0, "player");
+	//プレイヤーのUIを作成する
+	m_playerUi = NewGO<PlayerUi>(0,"playerUi");
 
 	//ステージのレベルの読み込み
 	m_levelRender.Init("Assets/level3D/stage.tkl", [&](LevelObjectData& objData)

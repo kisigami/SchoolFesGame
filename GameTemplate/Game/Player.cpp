@@ -5,24 +5,26 @@
 #include "Bullet.h"
 #include "Enemy.h"
 #include "graphics/effect/EffectEmitter.h"
+#include <math.h>
 
 namespace
 {
 	const float MODEL_POSITION_Y = 47.0f;                       //モデルの座標
-	const float ZERO = 0.0f;								              //0.0f
-	const float CHARACON_RADIUS = 20.0f;                      //キャラコンの半径
-	const float CHARACON_HEIGHT = 50.0f;                      //キャラコンの高さ
-	const float MOVE_SPEED = 300.0f;                              //移動速度
-	const float SHOT_MOVE_SPEED = 65.0f;                      //射撃ステートの移動速度
-	const float MOVE_SPEED_MINIMUMVALUE = 0.001f;     //移動速度の最低値
-	const float JUMP_POWER = 200.0f;                             //ジャンプ力
-	const float GRAVITY = 500.0f;                                   //重力
-	const float IDLE_ANIMATION_SPEED = 1.0f;                //待機アニメーションの再生速度
-	const float IDLE_ANIMATION_INTERPOLATE = 0.3f;     //待機アニメーションの補完時間
-	const float RUN_ANIMATION_SPEED = 0.8f;                //走りアニメーションの再生時間
-	const float RUN_ANIMATION_INTERPOLATE = 0.1f;     //走りアニメーションの補完時間
-	const float SHOT_ANIMATION_SPEED = 2.0f;              //射撃アニメーションの再生時間
-	const float SHOT_ANIMATION_INTERPOLATE = 0.1f;   //射撃アニメーションの補完時間
+	const float ZERO = 0.0f;								    //0.0f
+	const float CHARACON_RADIUS = 20.0f;                        //キャラコンの半径
+	const float CHARACON_HEIGHT = 50.0f;                        //キャラコンの高さ
+	const float MOVE_SPEED = 150.0f;                            //移動速度
+	const float SHOT_MOVE_SPEED = 65.0f;                        //射撃ステートの移動速度
+	const float MOVE_SPEED_MINIMUMVALUE = 0.001f;               //移動速度の最低値
+	const float JUMP_POWER = 200.0f;                            //ジャンプ力
+	const float GRAVITY = 500.0f;                               //重力
+	const float IDLE_ANIMATION_SPEED = 1.0f;                    //待機アニメーションの再生速度
+	const float IDLE_ANIMATION_INTERPOLATE = 0.3f;              //待機アニメーションの補完時間
+	const float RUN_ANIMATION_SPEED = 1.0f;                     //走りアニメーションの再生時間
+	const float RUN_ANIMATION_INTERPOLATE = 0.1f;               //走りアニメーションの補完時間
+	const float SHOT_ANIMATION_SPEED = 2.0f;                    //射撃アニメーションの再生時間
+	const float SHOT_ANIMATION_INTERPOLATE = 0.1f;              //射撃アニメーションの補完時間
+	const Vector3 tocamerapos = { 0.0f,0.0f,-1000.0f };
 }
 
 Player::Player()
@@ -70,19 +72,13 @@ bool Player::Start()
 	//モデルの更新
 	m_modelRender.Update();
 
+	m_toCameraPos = tocamerapos;
+
 	return true;
 }
 
 void Player::Update()
 {
-	//HPを表示
-	wchar_t wcsbuf[256];
-	swprintf_s(wcsbuf, 256, L"HP=%d", int(m_hp));
-	m_fontRender.SetText(wcsbuf);
-	m_fontRender.SetPosition(-300.0f,0.0f,0.0f);
-	m_fontRender.SetScale(2.3f);
-	m_fontRender.SetColor(Vector4(1.0f, 1.0f, 0.0f, 1.0f));
-
 	//回転処理
 	Rotation();
 	//移動処理
@@ -119,22 +115,25 @@ void Player::EffectPlay()
 
 void Player::Rotation()
 {
-	//プレイヤーから注視点へのベクトル
-	Vector3 targetVector = m_gameCamera->GetTargetPosition() - m_position;
-	//正規化
-	targetVector.Normalize();
-	//注視点へのベクトルからY軸の回転クオータニオンを作成
-	m_rotation.SetRotationYFromDirectionXZ(targetVector);
+	Vector3 m_target = m_gameCamera->GetTargetPosition();
+	Vector3 toTarget = m_target - m_position;
+	float angle = atan2f(toTarget.x, toTarget.z);
+	m_rotation.SetRotationY(angle);
+
 	//視点から注視点へのベクトル
 	Vector3 gunTarget = m_gameCamera->GetTargetPosition();
-	Vector3 gunCamera = m_gameCamera->GetCameraPosition();
-	Vector3 vector = gunTarget - gunCamera;
+	Vector3 Pos = m_gameCamera->GetCameraPosition();
+	Vector3 diff = gunTarget - Pos;
 	//注視点を向く回転角度を取得
-	float angle = atan2f(vector.y, vector.Length());
-	////X軸に回転角度を加算
-	m_rotation.AddRotationX(-angle);
-	//回転の設定
+	float angle2 = atan2f(-diff.y, g_camera3D->GetTargetToPositionLength());
+	//X軸に回転角度を加算
+	m_rotation.AddRotationX(angle2);
+
 	m_modelRender.SetRotation(m_rotation);
+
+	//プレイヤーの正面ベクトルを計算する。
+	m_forward = Vector3::AxisZ;
+	m_rotation.Apply(m_forward);
 }
 
 void Player::Move()
@@ -171,10 +170,12 @@ void Player::Move()
 	m_moveSpeed.y -= 500.0f * g_gameTime->GetFrameDeltaTime();
 	//キャラコンの座標をプレイヤーの座標に代入
 	m_position = m_charaCon.Execute( m_moveSpeed,g_gameTime->GetFrameDeltaTime());
+	m_position.y = 0.0f;
+
 	//モデルをカメラに合わせて動かす
 	m_modelRender.SetPosition(
 		m_gameCamera->GetCameraPosition().x,
-		m_gameCamera->GetCameraPosition().y - 5.0f,
+		48.0f,
 		m_gameCamera->GetCameraPosition().z
 	);
 }
@@ -227,9 +228,11 @@ void Player::MakeBullet()
 	Bullet* bullet = NewGO<Bullet>(0);
 	Vector3 position = m_gameCamera->GetCameraPosition();
 	//座標を視点の下にする
-	position.y -= 5.0f;
+	position.y -= 3.0f;
+	position += m_forward * 30.0f;
 	//座標を設定する
 	bullet->SetPosition(position);
+	bullet->SetRotation(m_rotation);
 }
 
 void Player::PlayAnimation()
@@ -364,5 +367,5 @@ void Player::Render(RenderContext& rc)
 	//モデルの描画
 	m_modelRender.Draw(rc);
 	//フォントの描画
-	m_fontRender.Draw(rc);
+	//m_fontRender.Draw(rc);
 }

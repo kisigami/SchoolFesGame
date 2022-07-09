@@ -14,6 +14,7 @@ class BackGround;    //背景クラス
 class GameCamera;    //ゲームカメラクラス
 class Enemy;         //エネミークラス
 class Fade;
+class PlayerUi;
 
 
 class Game : public IGameObject
@@ -32,5 +33,6 @@ private:
 	GameCamera* m_gameCamera = nullptr;   //ゲームカメラ
 	Enemy*      m_enemy = nullptr;        //エネミー
 	Fade*       m_fade = nullptr;
+	PlayerUi*   m_playerUi = nullptr;
 };
 

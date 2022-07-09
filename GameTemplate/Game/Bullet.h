@@ -43,6 +43,7 @@ public:
 
 	GameCamera*        m_gameCamera = nullptr;        //ゲームカメラ
 	CollisionObject*   m_collisionObject = nullptr;   //コリジョンオブジェクト
+	EffectEmitter*     m_effectEmitter = nullptr;
 	Player*            m_player = nullptr;            //プレイヤー
 	float              m_deleteTimer = 0.0f;          //削除タイマー
 	Vector3            m_position;                    //座標
