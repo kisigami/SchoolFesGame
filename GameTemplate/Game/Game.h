@@ -15,7 +15,7 @@ class GameCamera;    //ゲームカメラクラス
 class Enemy;         //エネミークラス
 class Fade;
 class PlayerUi;
-
+class SpeedEnemy;
 
 class Game : public IGameObject
 {
@@ -27,12 +27,14 @@ public:
 	void Render(RenderContext& rc);
 
 private:
-	LevelRender m_levelRender;            //レベルレンダー
-	Player*     m_player = nullptr;       //プレイヤー
-	BackGround* m_backGround = nullptr;   //背景
-	GameCamera* m_gameCamera = nullptr;   //ゲームカメラ
-	Enemy*      m_enemy = nullptr;        //エネミー
-	Fade*       m_fade = nullptr;
-	PlayerUi*   m_playerUi = nullptr;
+	SoundSource* m_bgm = nullptr;
+	LevelRender  m_levelRender;            //レベルレンダー
+	Player*      m_player = nullptr;       //プレイヤー
+	BackGround*  m_backGround = nullptr;   //背景
+	GameCamera*  m_gameCamera = nullptr;   //ゲームカメラ
+	Enemy*       m_enemy = nullptr;        //エネミー
+	Fade*        m_fade = nullptr;
+	PlayerUi*    m_playerUi = nullptr;
+	SpeedEnemy*  m_speedEnemy = nullptr;
 };
 

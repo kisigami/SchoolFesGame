@@ -41,6 +41,7 @@ public:
 		m_scale = scale;
 	}
 
+	SoundSource*       m_se = nullptr;
 	GameCamera*        m_gameCamera = nullptr;        //ゲームカメラ
 	CollisionObject*   m_collisionObject = nullptr;   //コリジョンオブジェクト
 	EffectEmitter*     m_effectEmitter = nullptr;

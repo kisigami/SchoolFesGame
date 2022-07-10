@@ -58,8 +58,6 @@ bool Enemy::Start()
 {
 	//アニメーションの初期化
 	InitAnimation();
-	//プレイヤーのインスタンスを探す
-	m_player = FindGO<Player>("player");
 	//モデルの読み込み
 	m_modelRender.Init("Assets/modelData/enemy/enemy.tkm", m_animClips, enAnimClip_Num);
 	//アニメーションイベント用の関数を設定する。
@@ -77,8 +75,9 @@ bool Enemy::Start()
 	m_charaCon.Init(CHARACON_RADIUS, CHARACON_HEIGHT,m_position);
 	//モデルの更新
 	m_modelRender.Update();
+	//プレイヤーのインスタンスを探す
+	m_player = FindGO<Player>("player");
 
-	m_nvmMesh.Init("Assets/nav/test1.tkn");
 	return true;
 }
 
@@ -208,7 +207,7 @@ void Enemy::Collision()
 				m_hp -= REACT_DAMAGE;
 				//コリジョンを非アクティブにする
 				collision->Dead();
-
+				collision->Deactivate();
 				//HPが0になったら。
 				if (m_hp <= HP_ZERO)
 				{

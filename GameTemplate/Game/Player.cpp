@@ -72,8 +72,6 @@ bool Player::Start()
 	//ƒ‚ƒfƒ‹‚ÌXV
 	m_modelRender.Update();
 
-	m_toCameraPos = tocamerapos;
-
 	return true;
 }
 

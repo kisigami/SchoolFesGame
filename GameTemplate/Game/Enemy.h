@@ -175,7 +175,7 @@ public:
 	Animation            m_animation;                           //アニメーション
 	AnimationClip        m_animClips[enAnimClip_Num];           //アニメーションクリップ
 	CharacterController  m_charaCon;                            //キャラコン
-	int                  m_hp = 5;                              //HP
+	int                  m_hp = 6;                              //HP
 	Bullet*              m_bullet = nullptr;                    //弾
 	Player*              m_player = nullptr;                    //プレイヤー
 	bool                m_mitukatta = false;                    //見つかったか

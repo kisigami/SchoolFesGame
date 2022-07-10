@@ -5,11 +5,10 @@
 
 namespace
 {
-	const Vector3 TO_CAMERA_POS = { 0.0f, -5.0f, -1000.0f };  //注視点から視点へのベクトル
+	const Vector3 TO_CAMERA_POS = { 0.0f, 0.0f, -1000.0f };   //注視点から視点へのベクトル
 	const float   CAMERA_HEIGHT_POSITION = 52.0f;			  //視点の高さ
-	const float   CAMERA_FORWAED_POSITION = 4.0f;		      //視点の前座標
-	const float   ROTATION_SPEED_X = 1.6f;                    //X軸のカメラの回転速度
-	const float   ROTATION_SPEED_Y = -1.6f;                   //Y軸のカメラの回転速度
+	const float   ROTATION_SPEED_X = 1.4f;                    //X軸のカメラの回転速度
+	const float   ROTATION_SPEED_Y = -1.2f;                   //Y軸のカメラの回転速度
 	const float   UP_MAX_POS = 0.3f;                          //上を向ける上限値
 	const float   DOWN_MAX_POS = -0.3;                        //下を向ける上限値
 	const float   SPRITE_W = 1920.0f;                         //画像の横幅
@@ -30,8 +29,6 @@ bool GameCamera::Start()
 {
 	//プレイヤーのインスタンスを探す
 	m_player = FindGO<Player>("player");
-	//画像の読み込み
-	m_modelRender.Init("Assets/modelData/bullet/bullet.tkm");
 
 	m_spriteRender.Init("Assets/sprite/dot/dot.dds", SPRITE_W, SPRITE_H);
 	//注視点から視点までのベクトルを設定
@@ -92,13 +89,10 @@ void GameCamera::Update()
 
 	//カメラの更新
 	g_camera3D->Update();
-	m_modelRender.SetPosition(m_targetPosition);
-	m_modelRender.Update();
+	
 }
 
 void GameCamera::Render(RenderContext& rc)
 {
-	//画像を描画
 	m_spriteRender.Draw(rc);
-	//m_modelRender.Draw(rc);
 }
