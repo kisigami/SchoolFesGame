@@ -56,10 +56,15 @@ public:
 	{
 		return m_hp;
 	}
+	/// <summary>
+	/// プレイヤーの前方向ベクトルを取得
+	/// </summary>
+	/// <returns>前方向ベクトル</returns>
 	const Vector3& GetForward() const
 	{
 		return m_forward;
 	}
+
 private:
 	/// <summary>
 	/// プレイヤーステート
@@ -136,15 +141,20 @@ private:
 	///アニメーションのキーを設定
 	/// </summary>
 	void OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName);
-
-	//アニメーションクリップの番号を表す
+	/// <summary>
+	/// アニメーションクリップの番号を表す
+	/// </summary>
 	enum EnAnimationClip
 	{
-		enAnimClip_RifleIdle,   //待機アニメーション
-		enAnimClip_RifleRun,    //走りアニメーション
-		enAnimClip_RifleShot,   //射撃アニメーション
+		enAnimClip_Idle,   //待機アニメーション
+		enAnimClip_Run,    //走りアニメーション
+		enAnimClip_Shot,   //射撃アニメーション
 		enAnimClip_Num          //アニメーションの数
 	};
+
+	//クラス定義
+	GameCamera*          m_gameCamera = nullptr;                 //ゲームカメラ
+	Enemy*               m_enemy = nullptr;                      //エネミー
 
 	FontRender           m_fontRender;                           //フォントレンダー
 	EnPlayerState        m_playerState = enPlayerState_Idle;     //プレイヤーステート
@@ -157,12 +167,7 @@ private:
 	Vector3              m_moveSpeed;                            //移動速度
 	Vector3              m_forward = Vector3::AxisZ;             //プレイヤーの前ベクトル
 	Quaternion           m_rotation;                             //回転
-	GameCamera*          m_gameCamera = nullptr;                 //ゲームカメラ
-	Enemy*               m_enemy = nullptr;                      //エネミー
-	float                m_bulletNum = 30;                       //残弾数
 	int                  m_hp = 100;                             //ヒットポイント
 	float                m_receiveDamageTimer = 1.0f;            //無敵タイマー
-	float x = 0.0f;
-	Vector3 m_toCameraPos;
 };
 

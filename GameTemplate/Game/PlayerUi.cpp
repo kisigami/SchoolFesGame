@@ -5,8 +5,8 @@
 
 namespace
 {
-	const float WIDTH = 1920.0f;              //画像の横幅
-	const float HEIGHT = 1080.0f;             //画像の縦幅
+	const float SPRITE_WIDTH = 1920.0f;       //画像の横幅
+	const float SPRITE_HEIGHT = 1080.0f;      //画像の縦幅
 	const float HPBAR_POSITION_X = -925.0f;   //HPバー画像のX座標
 	const float HPBAR_POSITION_Y = -540.0f;   //HPバー画像のY座標
 	const float HPBAR_POSITION_Z = 0.0f;      //HPバー画像のZ座標
@@ -28,12 +28,13 @@ PlayerUi::~PlayerUi()
 bool PlayerUi::Start()
 {
 	//画像の読み込み
-	m_hpBarRender.Init("Assets/sprite/player/hp/hpbar.dds", WIDTH, HEIGHT);
+	m_hpBarRender.Init("Assets/sprite/player/hp/hpbar.dds", SPRITE_WIDTH, SPRITE_HEIGHT);
 	m_hpBarRender.SetPosition(Vector3(HPBAR_POSITION_X, HPBAR_POSITION_Y, HPBAR_POSITION_Z));
 	m_hpBarRender.SetPivot(Vector2(HPBAR_PIVOT_X, HPBAR_PIVOT_Y));
-	m_hpBarFrameRender.Init("Assets/sprite/player/hp/hpbarframe.dds", WIDTH, HEIGHT);
-	m_hpBarBottomRender.Init("Assets/sprite/player/hp/hpbarbottom.dds", WIDTH, HEIGHT);
-	m_hpFontRender.Init("Assets/sprite/player/hp/hpfont.dds", WIDTH, HEIGHT);
+	m_hpBarFrameRender.Init("Assets/sprite/player/hp/hpbarframe.dds", SPRITE_WIDTH, SPRITE_HEIGHT);
+	m_hpBarBottomRender.Init("Assets/sprite/player/hp/hpbarbottom.dds", SPRITE_WIDTH, SPRITE_HEIGHT);
+	m_hpFontRender.Init("Assets/sprite/player/hp/hpfont.dds", SPRITE_WIDTH, SPRITE_HEIGHT);
+	m_targetRender.Init("Assets/sprite/player/cross.dds", SPRITE_WIDTH, SPRITE_HEIGHT);
 
 	//プレイヤーのインスタンスを探す
 	m_player = FindGO<Player>("player");
@@ -51,6 +52,7 @@ void PlayerUi::Update()
 	m_hpBarRender.Update();
 	m_hpBarFrameRender.Update();
 	m_hpFontRender.Update();
+	m_targetRender.Update();
 }
 
 void PlayerUi::HpBarScale()
@@ -68,5 +70,5 @@ void PlayerUi::Render(RenderContext& rc)
 	m_hpBarRender.Draw(rc);
 	m_hpBarFrameRender.Draw(rc);
 	m_hpFontRender.Draw(rc);
-
+	m_targetRender.Draw(rc);
 }

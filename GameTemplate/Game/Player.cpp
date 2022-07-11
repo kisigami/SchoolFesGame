@@ -12,8 +12,8 @@ namespace
 	const float MODEL_POSITION_Y = 47.0f;                       //モデルの座標
 	const float ZERO = 0.0f;								    //0.0f
 	const float CHARACON_RADIUS = 20.0f;                        //キャラコンの半径
-	const float CHARACON_HEIGHT = 50.0f;                        //キャラコンの高さ
-	const float MOVE_SPEED = 150.0f;                            //移動速度
+	const float CHARACON_HEIGHT = 45.0f;                        //キャラコンの高さ
+	const float MOVE_SPEED = 170.0f;                            //移動速度
 	const float SHOT_MOVE_SPEED = 65.0f;                        //射撃ステートの移動速度
 	const float MOVE_SPEED_MINIMUMVALUE = 0.001f;               //移動速度の最低値
 	const float JUMP_POWER = 200.0f;                            //ジャンプ力
@@ -40,12 +40,12 @@ Player::~Player()
 void Player::InitAnimation()
 {
 	//アニメーションクリップをロードする
-	m_animClips[enAnimClip_RifleIdle].Load("Assets/animData/ar/idle.tka");
-	m_animClips[enAnimClip_RifleIdle].SetLoopFlag(true);
-	m_animClips[enAnimClip_RifleRun].Load("Assets/animData/ar/walk.tka");
-	m_animClips[enAnimClip_RifleRun].SetLoopFlag(true);
-	m_animClips[enAnimClip_RifleShot].Load("Assets/animData/ar/shot.tka");
-	m_animClips[enAnimClip_RifleShot].SetLoopFlag(false);
+	m_animClips[enAnimClip_Idle].Load("Assets/animData/ar/idle.tka");
+	m_animClips[enAnimClip_Idle].SetLoopFlag(true);
+	m_animClips[enAnimClip_Run].Load("Assets/animData/ar/walk.tka");
+	m_animClips[enAnimClip_Run].SetLoopFlag(true);
+	m_animClips[enAnimClip_Shot].Load("Assets/animData/ar/shot.tka");
+	m_animClips[enAnimClip_Shot].SetLoopFlag(false);
 }
 
 bool Player::Start()
@@ -63,8 +63,6 @@ bool Player::Start()
 	m_modelRender.AddAnimationEvent([&](const wchar_t* clipName, const wchar_t* eventName) {
 		OnAnimationEvent(clipName, eventName);
 	});
-	//エフェクトを読み込む
-	EffectEngine::GetInstance()->ResistEffect(1, u"Assets/effect/efk/smoke.efk");
 	//座標の設定
 	m_modelRender.SetPosition(m_position.x, m_position.y, m_position.z);
 	//キャラコンを初期化
@@ -200,8 +198,7 @@ void Player::Collision()
 			collision->Dead();
 			//コリジョンを非アクティブにする
 			collision->Deactivate();
-			//エネミーを攻撃中ではなくする
-			m_enemy->m_attacking = false;
+
 			//HPが0より小さかったら
 			if (m_hp <= 0)
 			{
@@ -239,17 +236,17 @@ void Player::PlayAnimation()
 	{
 		//待機ステートの時
 	case Player::enPlayerState_Idle:
-		m_modelRender.PlayAnimation(enAnimClip_RifleIdle,IDLE_ANIMATION_INTERPOLATE);
+		m_modelRender.PlayAnimation(enAnimClip_Idle,IDLE_ANIMATION_INTERPOLATE);
 		m_modelRender.SetAnimationSpeed(IDLE_ANIMATION_SPEED);
 		break;
 		//走りステートの時
 	case Player::enPlayerState_Run:
-		m_modelRender.PlayAnimation(enAnimClip_RifleRun, RUN_ANIMATION_INTERPOLATE);
+		m_modelRender.PlayAnimation(enAnimClip_Run, RUN_ANIMATION_INTERPOLATE);
 		m_modelRender.SetAnimationSpeed(RUN_ANIMATION_SPEED);
 		break;
 		//射撃ステートの時
 	case Player::enPlayerState_Shot:
-		m_modelRender.PlayAnimation(enAnimClip_RifleShot, SHOT_ANIMATION_INTERPOLATE);
+		m_modelRender.PlayAnimation(enAnimClip_Shot, SHOT_ANIMATION_INTERPOLATE);
 		m_modelRender.SetAnimationSpeed(SHOT_ANIMATION_SPEED);
 		break;
 	}

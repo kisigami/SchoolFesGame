@@ -15,12 +15,17 @@ bool BackGround::Start()
 {
 	//ƒ‚ƒfƒ‹‚Ì•`‰æ
 	m_modelRender.Init("Assets/modelData/background/background.tkm");
+	
+	m_modelRender.SetScale(m_scale);
+	m_modelRender.Update();
+	
 	//“–‚½‚è”»’è
 	m_physicsStaticObject.CreateFromModel(m_modelRender.GetModel(), m_modelRender.GetModel().GetWorldMatrix());
 	
-	m_physicsStaticObject.GetbtCollisionObject()->setUserIndex(enCollisionAttr_Wall);
+	//m_physicsStaticObject.GetbtCollisionObject()->setUserIndex(enCollisionAttr_Wall);
 	//“–‚½‚è”»’è‚Ì‰ÂŽ‹‰»
 	//PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
+	
 	
 	return true;
 }

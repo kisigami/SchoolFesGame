@@ -8,10 +8,10 @@ namespace
 {
 	const float CHARACON_RADIUS = 12.0f;             //キャラコンの半径
 	const float CHARACON_HEIGHT = 40.0f;             //キャラコンの高さ
-	const int   REACT_DAMAGE = 1;                    //受けるダメージ量
-	const float MOVE_SPEED = 100.0f;                  //移動速度
-	const int   HP_ZERO = 0;                         //０
-	const float ENEMY_SCALE = 1.0f;                  //エネミーの大きさ
+	const int   REACT_DAMAGE_VALUE = 1;              //受けるダメージの値
+	const float MOVE_SPEED = 100.0f;                 //移動速度
+	const int   HP_DOWN_VALUE = 0;                   //死亡時のHPの値
+	const float MODEL_SCALE = 1.2f;                  //エネミーの大きさ
 	const float ATTACK_COLLISION_SIZE_X = 30.0f;     //攻撃の当たり判定のX軸大きさ
 	const float ATTACK_COLLISION_SIZE_Y = 30.0f;	 //攻撃の当たり判定のY軸大きさ
 	const float ATTACK_COLLISION_SIZE_Z = 20.0f;	 //攻撃の当たり判定のZ軸大きさ
@@ -27,7 +27,8 @@ namespace
 	const int   PROBABILITY = 100;                   //確率の数
 	const int   ATTACK_PROBABILITY = 50;             //攻撃できる確率
 	const float ATTACK_DIFF = 45.0f;                 //攻撃できる距離
-	const float COLLIDER_HEIGHT = 70.0f;             //コライダーの高さ
+	const float COLLIDER_RADIUS = 1.0f;              //スフィアコライダーの半径
+	const float COLLIDER_HEIGHT = 70.0f;             //コライダーの発射時の高さ
 	const float LOOKME_ANGLE = 0.5f;                 //プレイヤーを見つける角度
 }
 
@@ -70,7 +71,7 @@ bool SpeedEnemy::Start()
 	//キャラコンを初期化
 	m_charaCon.Init(CHARACON_RADIUS, CHARACON_HEIGHT, m_position);
 	//大きさを設定
-	m_modelRender.SetScale(Vector3::One * 1.2);
+	m_modelRender.SetScale(Vector3::One * MODEL_SCALE);
 	//モデルの更新
 	m_modelRender.Update();
 	//プレイヤーのインスタンスを探す
@@ -190,12 +191,12 @@ void SpeedEnemy::Collision()
 			if (collision->IsHit(m_charaCon))
 			{
 				//HPを減らす。
-				m_hp -= REACT_DAMAGE;
+				m_hp -= REACT_DAMAGE_VALUE;
 				//コリジョンを非アクティブにする
 				collision->Dead();
 				collision->Deactivate();
 				//HPが0になったら。
-				if (m_hp <= HP_ZERO)
+				if (m_hp <= HP_DOWN_VALUE)
 				{
 					//キャラコンをエンジンから削除
 					m_charaCon.RemoveRigidBoby();

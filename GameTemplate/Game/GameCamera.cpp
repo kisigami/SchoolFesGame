@@ -11,8 +11,6 @@ namespace
 	const float   ROTATION_SPEED_Y = -1.2f;                   //Y軸のカメラの回転速度
 	const float   UP_MAX_POS = 0.3f;                          //上を向ける上限値
 	const float   DOWN_MAX_POS = -0.3;                        //下を向ける上限値
-	const float   SPRITE_W = 1920.0f;                         //画像の横幅
-	const float   SPRITE_H = 1080.0f;                         //画像の縦幅
 }  
 
 GameCamera::GameCamera()
@@ -30,7 +28,6 @@ bool GameCamera::Start()
 	//プレイヤーのインスタンスを探す
 	m_player = FindGO<Player>("player");
 
-	m_spriteRender.Init("Assets/sprite/dot/dot.dds", SPRITE_W, SPRITE_H);
 	//注視点から視点までのベクトルを設定
 	m_toCameraPos.Set(TO_CAMERA_POS);
 
@@ -89,10 +86,4 @@ void GameCamera::Update()
 
 	//カメラの更新
 	g_camera3D->Update();
-	
-}
-
-void GameCamera::Render(RenderContext& rc)
-{
-	m_spriteRender.Draw(rc);
 }

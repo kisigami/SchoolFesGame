@@ -1,22 +1,19 @@
 #pragma once
 
-struct EnemyInformation
-{
-	int    s_enemyNo = 0;
-	bool   s_deadFlag = true;
-};
-
-#include "Level3DRender/LevelRender.h"
+#include "Level3DRender/LevelRender.h"   //レベルレンダーをインクルードする
 
 //クラス宣言
 class Player;        //プレイヤークラス
 class BackGround;    //背景クラス
 class GameCamera;    //ゲームカメラクラス
+class Fade;          //フェードクラス
+class PlayerUi;      //プレイヤー関連のUIクラス
 class Enemy;         //エネミークラス
-class Fade;
-class PlayerUi;
-class SpeedEnemy;
+class SpeedEnemy;    //スピードエネミークラス
 
+/// <summary>
+/// ゲームクラス
+/// </summary>
 class Game : public IGameObject
 {
 public:
@@ -27,14 +24,16 @@ public:
 	void Render(RenderContext& rc);
 
 private:
-	SoundSource* m_bgm = nullptr;
-	LevelRender  m_levelRender;            //レベルレンダー
+	//クラスを定義する
+	SoundSource* m_bgm = nullptr;          //BGM
 	Player*      m_player = nullptr;       //プレイヤー
 	BackGround*  m_backGround = nullptr;   //背景
 	GameCamera*  m_gameCamera = nullptr;   //ゲームカメラ
+	Fade*        m_fade = nullptr;         //フェード
+	PlayerUi*    m_playerUi = nullptr;     //プレイヤー関連のUI
 	Enemy*       m_enemy = nullptr;        //エネミー
-	Fade*        m_fade = nullptr;
-	PlayerUi*    m_playerUi = nullptr;
-	SpeedEnemy*  m_speedEnemy = nullptr;
+	SpeedEnemy*  m_speedEnemy = nullptr;   //スピードエネミー
+
+	LevelRender  m_levelRender;            //レベルレンダー
 };
 

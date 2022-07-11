@@ -7,6 +7,9 @@
     <Filter Include="enemy">
       <UniqueIdentifier>{13cf5518-d07f-49ca-9d15-950f7e809d22}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{522a432b-d89c-4faf-a0ff-804ef3b2942c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -21,11 +24,15 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Title.cpp" />
     <ClCompile Include="Fade.cpp" />
-    <ClCompile Include="PlayerUi.cpp" />
     <ClCompile Include="Enemy.cpp">
       <Filter>enemy</Filter>
     </ClCompile>
-    <ClCompile Include="SpeedEnemy.cpp" />
+    <ClCompile Include="PlayerUi.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="SpeedEnemy.cpp">
+      <Filter>enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -39,10 +46,14 @@
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Title.h" />
     <ClInclude Include="Fade.h" />
-    <ClInclude Include="PlayerUi.h" />
     <ClInclude Include="Enemy.h">
       <Filter>enemy</Filter>
     </ClInclude>
-    <ClInclude Include="SpeedEnemy.h" />
+    <ClInclude Include="PlayerUi.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="SpeedEnemy.h">
+      <Filter>enemy</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

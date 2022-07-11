@@ -33,6 +33,14 @@ public:
 	{
 		m_rotation = rotation;
 	}
+	/// <summary>
+	///拡大率を設定
+	/// </summary>
+	/// <param name="scale">拡大率</param>
+	void SetScale(const Vector3& scale)
+	{
+		m_scale = scale;
+	}
 
 private:
 	PhysicsStaticObject m_physicsStaticObject;   //フィジクススタティックオブジェクト

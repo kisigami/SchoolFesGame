@@ -4,22 +4,33 @@
 #include "Player.h"
 #include "BackGround.h"
 #include "GameCamera.h"
-#include "Enemy.h"
-#include "Fade.h"
 
-#include "SpeedEnemy.h"
+#include "Fade.h"
 #include "PlayerUi.h"
 
+#include "Enemy.h"
+#include "SpeedEnemy.h"
+
+namespace
+{
+	const int   BGM_NUMBER = 0;      //BGMの番号
+	const float BGM_VOLUME = 0.2f;   //BGMのサウンドボリューム
+
+}
 Game::Game()
 {
-
 }
 
 Game::~Game()
 {
+	//カメラを削除する
 	DeleteGO(m_gameCamera);
+	//プレイヤーを削除する
 	DeleteGO(m_player);
+	//背景を削除する
 	DeleteGO(m_backGround);
+	//プレイヤー関連のUIを削除する
+	DeleteGO(m_playerUi);
 }
 
 bool Game::Start()
@@ -30,10 +41,13 @@ bool Game::Start()
 	m_player = NewGO<Player>(0, "player");
 	//プレイヤーのUIを作成する
 	m_playerUi = NewGO<PlayerUi>(0,"playerui");
-
+	//スピードエネミーを作成する
 	m_speedEnemy = NewGO<SpeedEnemy>(0, "speedenemy");
 
-	//ステージのレベルの読み込み
+	//BGMを読み込む
+	g_soundEngine->ResistWaveFileBank(BGM_NUMBER, "Assets/sound/bgm.wav");
+
+	////ステージのレベルの読み込み
 	m_levelRender.Init("Assets/level3D/stage.tkl", [&](LevelObjectData& objData)
 		{
 			//オブジェクトの名前が「background」だったら
@@ -43,6 +57,7 @@ bool Game::Start()
 				m_backGround = NewGO<BackGround>(0, "background");
 				//座標を設定する
 				m_backGround->SetPosition(objData.position);
+				m_backGround->SetScale(objData.scale);
 				return true;
 			}
 
@@ -61,14 +76,19 @@ bool Game::Start()
 			return true;
 		});
 
+	//フェードのインスタンスを探す
 	m_fade = FindGO<Fade>("fade");
+	//フェードインを開始する
 	m_fade->StartFadeIn();
 
-	g_soundEngine->ResistWaveFileBank(0, "Assets/sound/bgm.wav");
+	//BGMを作成する
 	m_bgm = NewGO<SoundSource>(0);
-	m_bgm->Init(0);
+	//BGMを初期化する
+	m_bgm->Init(BGM_NUMBER);
+	//BGMを再生する（ループする）
 	m_bgm->Play(true);
-	m_bgm->SetVolume(0.2f);
+	//BGMの大きさを設定する
+	m_bgm->SetVolume(BGM_VOLUME);
 	return true;
 }
 

@@ -10,7 +10,6 @@ class Player;        //プレイヤー
 class Bullet:public IGameObject
 {
 public:
-
 	Bullet();
 	~Bullet();
 	bool Start();
@@ -41,15 +40,18 @@ public:
 		m_scale = scale;
 	}
 
-	SoundSource*       m_se = nullptr;
+private:
+	//クラスを定義
+	SoundSource*       m_se = nullptr;                //SE
 	GameCamera*        m_gameCamera = nullptr;        //ゲームカメラ
 	CollisionObject*   m_collisionObject = nullptr;   //コリジョンオブジェクト
-	EffectEmitter*     m_effectEmitter = nullptr;
+	EffectEmitter*     m_effectEmitter = nullptr;     //エフェクト
 	Player*            m_player = nullptr;            //プレイヤー
+
 	float              m_deleteTimer = 0.0f;          //削除タイマー
 	Vector3            m_position;                    //座標
 	Vector3            m_moveSpeed;                   //移動速度
 	Quaternion         m_rotation;                    //回転
-	Vector3            m_scale = Vector3::One;        //大きさ
+	Vector3            m_scale = Vector3::One;        //拡大率
 };
 
