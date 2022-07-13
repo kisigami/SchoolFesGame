@@ -229,9 +229,12 @@
     <ClCompile Include="Fade.cpp" />
     <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameUi.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerUi.cpp" />
+    <ClCompile Include="Result.cpp" />
+    <ClCompile Include="SpawnEnemy.cpp" />
     <ClCompile Include="SpeedEnemy.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -248,8 +251,11 @@
     <ClInclude Include="Fade.h" />
     <ClInclude Include="GameCamera.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameUi.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerUi.h" />
+    <ClInclude Include="Result.h" />
+    <ClInclude Include="SpawnEnemy.h" />
     <ClInclude Include="SpeedEnemy.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="system\system.h" />

@@ -33,6 +33,13 @@
     <ClCompile Include="SpeedEnemy.cpp">
       <Filter>enemy</Filter>
     </ClCompile>
+    <ClCompile Include="SpawnEnemy.cpp">
+      <Filter>enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="GameUi.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Result.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -55,5 +62,12 @@
     <ClInclude Include="SpeedEnemy.h">
       <Filter>enemy</Filter>
     </ClInclude>
+    <ClInclude Include="SpawnEnemy.h">
+      <Filter>enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="GameUi.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Result.h" />
   </ItemGroup>
 </Project>

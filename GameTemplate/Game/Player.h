@@ -65,6 +65,16 @@ public:
 		return m_forward;
 	}
 
+	const int& GetKillEnemyCount()const
+	{
+		return m_killEnemyCount;
+	}
+
+	void SetKillEnemyCount(const int& num)
+	{
+		m_killEnemyCount = num;
+	}
+
 private:
 	/// <summary>
 	/// プレイヤーステート
@@ -169,5 +179,6 @@ private:
 	Quaternion           m_rotation;                             //回転
 	int                  m_hp = 100;                             //ヒットポイント
 	float                m_receiveDamageTimer = 1.0f;            //無敵タイマー
+	int                  m_killEnemyCount = 0;
 };
 

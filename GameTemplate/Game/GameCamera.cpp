@@ -7,8 +7,8 @@ namespace
 {
 	const Vector3 TO_CAMERA_POS = { 0.0f, 0.0f, -1000.0f };   //注視点から視点へのベクトル
 	const float   CAMERA_HEIGHT_POSITION = 52.0f;			  //視点の高さ
-	const float   ROTATION_SPEED_X = 1.4f;                    //X軸のカメラの回転速度
-	const float   ROTATION_SPEED_Y = -1.2f;                   //Y軸のカメラの回転速度
+	const float   ROTATION_SPEED_X = 2.0f;                    //X軸のカメラの回転速度
+	const float   ROTATION_SPEED_Y = -1.0f;                   //Y軸のカメラの回転速度
 	const float   UP_MAX_POS = 0.3f;                          //上を向ける上限値
 	const float   DOWN_MAX_POS = -0.3;                        //下を向ける上限値
 }  

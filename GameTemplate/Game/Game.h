@@ -10,6 +10,9 @@ class Fade;          //フェードクラス
 class PlayerUi;      //プレイヤー関連のUIクラス
 class Enemy;         //エネミークラス
 class SpeedEnemy;    //スピードエネミークラス
+class SpawnEnemy;
+class GameUi;
+class Result;
 
 /// <summary>
 /// ゲームクラス
@@ -22,9 +25,20 @@ public:
 	bool Start();
 	void Update();
 	void Render(RenderContext& rc);
-
+	const float& GetGameTime() const
+	{
+		return m_gameTimer;
+	}
 private:
+	enum GameState
+	{
+		enGameState_End,
+		enGameState_Idle,
+	};
+	void GameTime();
+	void NotifyGameEnd();
 	//クラスを定義する
+	GameState m_gameState = enGameState_Idle;
 	SoundSource* m_bgm = nullptr;          //BGM
 	Player*      m_player = nullptr;       //プレイヤー
 	BackGround*  m_backGround = nullptr;   //背景
@@ -33,7 +47,17 @@ private:
 	PlayerUi*    m_playerUi = nullptr;     //プレイヤー関連のUI
 	Enemy*       m_enemy = nullptr;        //エネミー
 	SpeedEnemy*  m_speedEnemy = nullptr;   //スピードエネミー
+	SkyCube*     m_skyCube = nullptr;
+	SpawnEnemy*  m_spawnEnemy = nullptr;
+	GameUi* m_gameUi = nullptr;
+	Result* m_result = nullptr;
 
 	LevelRender  m_levelRender;            //レベルレンダー
+	FPSLimitter m_fpsLimitter;
+
+	FontRender m_fontRender;
+	FontRender m_fontRender2;
+	float m_gameTimer = 60.0f;
+	bool m_isFadeOutWait = false;
 };
 

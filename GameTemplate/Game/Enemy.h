@@ -10,6 +10,7 @@
 class Bullet;   //弾
 class Enemy;
 class Player;
+class SpawnEnemy;
 
 /// <summary>
 /// エネミークラス
@@ -62,6 +63,18 @@ public:
 	void SetRotation(const Quaternion& rotation)
 	{
 		m_rotation = rotation;
+	}
+	const bool& GetActiveFlag() const
+	{
+		return m_isActive;
+	}
+	void SetActiveFlag(const bool& flag)
+	{
+		m_isActive = flag;
+	}
+	const int& GetMyNumber() const
+	{
+		return m_myNumber;
 	}
 
 	//アニメーションクリップの番号を表す
@@ -184,6 +197,7 @@ public:
 	bool                m_attacking = false;                    //攻撃中か
 	int				    m_pumchBoneId = -1;                     //パンチのボーン
 	bool                m_deadFlag = true;                      //死亡しているか
+	SpawnEnemy*  m_spawnEnemy = nullptr;
 
 	//経路探索で使うやつ
 	TknFile m_tknFile;

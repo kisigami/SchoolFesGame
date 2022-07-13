@@ -11,10 +11,10 @@ namespace
 {
 	const float MODEL_POSITION_Y = 47.0f;                       //モデルの座標
 	const float ZERO = 0.0f;								    //0.0f
-	const float CHARACON_RADIUS = 20.0f;                        //キャラコンの半径
-	const float CHARACON_HEIGHT = 45.0f;                        //キャラコンの高さ
+	const float CHARACON_RADIUS = 25.0f;                        //キャラコンの半径
+	const float CHARACON_HEIGHT = 50.0f;                        //キャラコンの高さ
 	const float MOVE_SPEED = 170.0f;                            //移動速度
-	const float SHOT_MOVE_SPEED = 65.0f;                        //射撃ステートの移動速度
+	const float SHOT_MOVE_SPEED = 60.0f;                        //射撃ステートの移動速度
 	const float MOVE_SPEED_MINIMUMVALUE = 0.001f;               //移動速度の最低値
 	const float JUMP_POWER = 200.0f;                            //ジャンプ力
 	const float GRAVITY = 500.0f;                               //重力
@@ -362,5 +362,4 @@ void Player::Render(RenderContext& rc)
 	//モデルの描画
 	m_modelRender.Draw(rc);
 	//フォントの描画
-	//m_fontRender.Draw(rc);
 }

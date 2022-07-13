@@ -7,9 +7,15 @@
 
 #include "Fade.h"
 #include "PlayerUi.h"
+#include "GameUi.h"
+#include "Result.h"
 
 #include "Enemy.h"
 #include "SpeedEnemy.h"
+#include "nature/SkyCube.h"
+
+#include "time/FPSLimitter.h"
+#include "SpawnEnemy.h"
 
 namespace
 {
@@ -31,19 +37,37 @@ Game::~Game()
 	DeleteGO(m_backGround);
 	//プレイヤー関連のUIを削除する
 	DeleteGO(m_playerUi);
+	DeleteGO(m_gameUi);
+	DeleteGO(m_skyCube);
+	DeleteGO(m_spawnEnemy);
+	DeleteGO(m_bgm);
 }
 
 bool Game::Start()
 {
+	m_fpsLimitter.SetMaxFPS(45);
+	//スカイキューブとか環境光とかいろいろ
+	DeleteGO(m_skyCube);
+	m_skyCube = NewGO<SkyCube>(0, "skycube");
+	m_skyCube->SetType((EnSkyCubeType)enSkyCubeType_Day);
+	m_skyCube->SetLuminance(0.8f);
+	g_renderingEngine->SetCascadeNearAreaRates(0.01f, 0.1f, 0.5f);
+	g_renderingEngine->SetAmbient(Vector3::One*0.5f);
+
+
 	//ゲームカメラを作成する
 	m_gameCamera = NewGO<GameCamera>(0, "gamecamera");
+	g_camera3D->SetFar(40000.0f);
 	//プレイヤーを作成する
 	m_player = NewGO<Player>(0, "player");
+	m_player = FindGO<Player>("player");
+
 	//プレイヤーのUIを作成する
 	m_playerUi = NewGO<PlayerUi>(0,"playerui");
-	//スピードエネミーを作成する
-	m_speedEnemy = NewGO<SpeedEnemy>(0, "speedenemy");
+	m_gameUi = NewGO<GameUi>(0, "gameui");
+	m_result = FindGO<Result>("result");
 
+	m_spawnEnemy = NewGO<SpawnEnemy>(0,"spawnenemy");
 	//BGMを読み込む
 	g_soundEngine->ResistWaveFileBank(BGM_NUMBER, "Assets/sound/bgm.wav");
 
@@ -58,19 +82,6 @@ bool Game::Start()
 				//座標を設定する
 				m_backGround->SetPosition(objData.position);
 				m_backGround->SetScale(objData.scale);
-				return true;
-			}
-
-			//オブジェクトの名前が「enemy」だったら
-			else if (objData.ForwardMatchName(L"enemy") == true)
-			{
-				//エネミーを作成する
-				auto enemy = NewGO<Enemy>(0, "enemy");
-				//座標を設定する
-				enemy->SetPosition(objData.position);
-				//番号を設定する
-				int number = _wtoi(&objData.name[5]);
-				enemy->SetMyNumber(number);
 				return true;
 			}
 			return true;
@@ -94,13 +105,43 @@ bool Game::Start()
 
 void Game::Update()
 {
-	// g_renderingEngine->DisableRaytracing();
-	//レベルの更新
+	GameTime();
+
+	if (m_gameState == enGameState_End)
+	{
+		if (m_isFadeOutWait) {
+			if (!m_fade->IsFade()) {
+				m_result = NewGO<Result>(0, "result");
+				m_result->SetScore(m_gameUi->GetScore());
+				DeleteGO(this);
+			}
+		}
+		else {
+			m_isFadeOutWait = true;
+			m_fade->StartFadeOut();
+		}
+	}
 	m_levelRender.Update();
+}
+
+void Game::GameTime()
+{
+	m_gameTimer -= g_gameTime->GetFrameDeltaTime();
+	
+	if (m_gameTimer <= 0.0f)
+	{
+		m_gameTimer = 0.0f;
+		//ゲームの終わりを通知する
+		NotifyGameEnd();
+	}
+}
+
+void Game::NotifyGameEnd()
+{
+	m_gameState = enGameState_End;
 }
 
 void Game::Render(RenderContext& rc)
 {
-	//描画
 	m_levelRender.Draw(rc);
 }

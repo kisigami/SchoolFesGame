@@ -2,6 +2,7 @@
 
 class Player;
 class Bullet;
+class SpawnEnemy;
 
 class SpeedEnemy :public IGameObject
 {
@@ -11,6 +12,30 @@ public:
 	bool Start();
 	void Update();
 	void Render(RenderContext& rc);
+	const Vector3& GetPosition() const
+	{
+		return m_position;
+	}
+	void SetPosition(const Vector3& position)
+	{
+		m_position = position;
+	}
+	const bool& GetActiveFlag() const
+	{
+		return m_isActive;
+	}
+	void SetActiveFlag(const bool& flag)
+	{
+		m_isActive = flag;
+	}
+	void SetMyNumber(const int& position)
+	{
+		m_myNumber = position;
+	}
+	const int& GetMyNumber() const
+	{
+		return m_myNumber;
+	}
 
 private:
 	/// <summary>
@@ -23,7 +48,9 @@ private:
 		enEnemyState_Chase,        //追跡ステート
 		enEnemyState_Attack,       //攻撃ステート
 		enEnemyState_Down,         //ダウンステート
+		enEnemyState_DeActive,     //ディアクテブ
 	};
+	float i = 0.0f;
 
 	/// <summary>
 	/// アニメーションの初期化
@@ -33,6 +60,7 @@ private:
 	/// 回転処理
 	/// </summary>
 	void Rotation();
+	void DeActive();
 	/// <summary>
 	/// 移動処理
 	/// </summary>
@@ -113,11 +141,10 @@ private:
 		enAnimClip_Num     //アニメーションの数
 	};
 
-
+	int n = 0;
 	ModelRender          m_modelRender;
 	Animation            m_animation;                           //アニメーション
 	AnimationClip        m_animClips[enAnimClip_Num];           //アニメーションクリップ
-	int                  m_myNumber = 0;                        //マイナンバー
 	Vector3              m_position;                            //座標
 	Vector3              m_scale;                               //大きさ
 	Vector3              m_moveSpeed;                           //移動速度
@@ -125,12 +152,15 @@ private:
 	Quaternion           m_rotation;                            //回転
 	EnEnemyState         m_enemyState = enEnemyState_Idle;      //エネミーステート
 	CharacterController  m_charaCon;                            //キャラコン
-	int                  m_hp = 6;                              //HP
-	Bullet* m_bullet = nullptr;                    //弾
-	Player* m_player = nullptr;                    //プレイヤー
+	int                  m_hp = 3;                              //HP
+	Bullet*              m_bullet = nullptr;                    //弾
+	Player*              m_player = nullptr;                    //プレイヤー
 	bool                 m_mitukatta = false;                    //見つかったか
 	SphereCollider	     m_sphereCollider;                       //スヒアコライダー
 	bool                 m_attacking = false;                    //攻撃中か
 	int				     m_pumchBoneId = -1;                     //パンチのボーン
-	bool                 m_deadFlag = true;                      //死亡しているか
+
+	int                  m_myNumber = 0;                        //マイナンバー
+	bool                 m_isActive = false;
+	SpawnEnemy* m_spawnEnemy = nullptr;
 };

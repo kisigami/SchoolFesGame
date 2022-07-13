@@ -3,33 +3,34 @@
 
 #include "Player.h"
 #include "Bullet.h"
+#include "SpawnEnemy.h"
 
 namespace
 {
-	const float CHARACON_RADIUS = 12.0f;             //キャラコンの半径
+	const float CHARACON_RADIUS = 20.0f;             //キャラコンの半径
 	const float CHARACON_HEIGHT = 40.0f;             //キャラコンの高さ
 	const int   REACT_DAMAGE_VALUE = 1;              //受けるダメージの値
-	const float MOVE_SPEED = 100.0f;                 //移動速度
+	const float MOVE_SPEED = 125.0f;                 //移動速度
 	const int   HP_DOWN_VALUE = 0;                   //死亡時のHPの値
 	const float MODEL_SCALE = 1.2f;                  //エネミーの大きさ
 	const float ATTACK_COLLISION_SIZE_X = 30.0f;     //攻撃の当たり判定のX軸大きさ
 	const float ATTACK_COLLISION_SIZE_Y = 30.0f;	 //攻撃の当たり判定のY軸大きさ
-	const float ATTACK_COLLISION_SIZE_Z = 20.0f;	 //攻撃の当たり判定のZ軸大きさ
+	const float ATTACK_COLLISION_SIZE_Z = 30.0f;	 //攻撃の当たり判定のZ軸大きさ
 	const float IDLE_ANIMATION_SPEED = 1.0f;         //待機アニメーションの再生速度
 	const float IDLE_ANIMATION_INTERPOLATE = 0.3f;   //待機アニメーションの補完時間
-	const float RUN_ANIMATION_SPEED = 1.3f;          //走りアニメーションの再生速度
+	const float RUN_ANIMATION_SPEED = 1.8f;          //走りアニメーションの再生速度
 	const float RUN_ANIMATION_INTERPOLATE = 0.1f;    //走りアニメーションの補完時間
-	const float DOWN_ANIMATION_SPEED = 1.0f;         //ダウンアニメーションの再生時間
+	const float DOWN_ANIMATION_SPEED = 1.5f;         //ダウンアニメーションの再生時間
 	const float DOWN_ANIMATION_INTERPOLATE = 0.1f;   //ダウンアニメーションの補完時間
 	const float ATTACK_ANIMATION_SPEED = 1.0f;       //攻撃アニメーションの再生時間
 	const float ATTACK_ANIMATION_INTERPOLATE = 0.3f; //攻撃アニメーションの補完時間
 	const float UNDERGROUND_POSITION = 1000.0f;      //地下の座標
 	const int   PROBABILITY = 100;                   //確率の数
 	const int   ATTACK_PROBABILITY = 50;             //攻撃できる確率
-	const float ATTACK_DIFF = 45.0f;                 //攻撃できる距離
+	const float ATTACK_DIFF = 48.0f;                 //攻撃できる距離
 	const float COLLIDER_RADIUS = 1.0f;              //スフィアコライダーの半径
-	const float COLLIDER_HEIGHT = 70.0f;             //コライダーの発射時の高さ
-	const float LOOKME_ANGLE = 0.5f;                 //プレイヤーを見つける角度
+	const float COLLIDER_HEIGHT = 50.0f;             //コライダーの発射時の高さ
+	const float LOOKME_ANGLE = 0.3f;                 //プレイヤーを見つける角度
 }
 
 SpeedEnemy::SpeedEnemy()
@@ -65,7 +66,7 @@ bool SpeedEnemy::Start()
 		OnAnimationEvent(clipName, eventName);
 	});
 	//スフィアコライダーを初期化。
-	m_sphereCollider.Create(1.0f);
+	//m_sphereCollider.Create(1.0f);
 	//パンチのボーンを探す
 	m_pumchBoneId = m_modelRender.FindBoneID(L"mixamorig1:LeftHand");
 	//キャラコンを初期化
@@ -76,29 +77,53 @@ bool SpeedEnemy::Start()
 	m_modelRender.Update();
 	//プレイヤーのインスタンスを探す
 	m_player = FindGO<Player>("player");
+	m_spawnEnemy = FindGO<SpawnEnemy>("spawnenemy");
 	return true;
 }
 
 void SpeedEnemy::Update()
 {
-	//プレイヤーから見られいるか？
-	CantLookMe();
-	//攻撃処理
-	Attack();
-	//回転処理
-	Rotation();
-	//追跡処理
-	Chase();
-	//アニメーションの再生
-	PlayAnimation();
-	//当たり判定処理
-	Collision();
-	//各ステートの遷移処理
-	ManageState();
+	if (m_isActive == true)
+	{
+		//プレイヤーから見られいるか？
+		CantLookMe();
+		//攻撃処理
+		Attack();
+		//回転処理
+		Rotation();
+		//追跡処理
+		Chase();
+		//アニメーションの再生
+		PlayAnimation();
+		//当たり判定処理
+		Collision();
+		//各ステートの遷移処理
+		ManageState();
+	}
+
+	m_charaCon.SetPosition(m_position);
+	m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
 
 	//座標の設定
 	m_modelRender.SetPosition(m_position);
+	m_modelRender.SetScale(Vector3::One * MODEL_SCALE);
 	m_modelRender.Update();
+}
+
+void SpeedEnemy::DeActive()
+{
+	//アクティブではなかったら
+	if (m_isActive == false)
+	{
+		//待機ステートに移行する
+		m_enemyState = enEnemyState_Idle;
+		//待機座標に移動する
+		m_position = m_spawnEnemy->GetStayPoint();
+		//キャラコンを移動させる
+		m_charaCon.Init(CHARACON_RADIUS, CHARACON_HEIGHT, m_position);
+		//HPを元に戻す
+		m_hp = 3;
+	}
 }
 
 void SpeedEnemy::Rotation()
@@ -134,6 +159,7 @@ void SpeedEnemy::Chase()
 	vector.Normalize();
 	//移動速度＝プレイヤーに向かうベクトル×速度
 	m_moveSpeed = vector * MOVE_SPEED;
+	m_charaCon.SetPosition(m_position);
 	//キャラコンを使って座標を移動させる
 	m_position = m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
 	//座標の設定
@@ -198,10 +224,14 @@ void SpeedEnemy::Collision()
 				//HPが0になったら。
 				if (m_hp <= HP_DOWN_VALUE)
 				{
-					//キャラコンをエンジンから削除
-					m_charaCon.RemoveRigidBoby();
 					//ダウンステートに移行する
 					m_enemyState = enEnemyState_Down;
+					m_charaCon.RemoveRigidBoby();
+
+					//カウントを進める
+					int counter = m_player->GetKillEnemyCount();
+					counter += 1;
+					m_player->SetKillEnemyCount(counter);
 				}
 				return;
 			}
@@ -338,7 +368,10 @@ void SpeedEnemy::ProcessDownStateTransition()
 	//アニメーションの再生が終わったら
 	if (m_modelRender.IsPlayingAnimation() == false)
 	{
-		return;
+		//非アクティブにする
+		m_isActive = false;
+		//ステータスを初期化する
+		DeActive();
 	}
 }
 
@@ -354,7 +387,7 @@ struct SweepResultWall :public btCollisionWorld::ConvexResultCallback
 			//衝突したのは壁ではない。
 			return 0.0f;
 		}
-
+		
 		//壁とぶつかったら。
 		//フラグをtrueに。
 		isHit = true;
@@ -366,11 +399,16 @@ void SpeedEnemy::CantLookMe()
 {
 	m_mitukatta = false;
 
-	m_forward = Vector3::AxisZ;
-	m_rotation.Apply(m_forward);
-
 	Vector3 playerPosition = m_player->GetPosition();
 	Vector3 diff = playerPosition - m_position;
+
+	if (diff.LengthSq() >= 1000.0f * 1000.0f)
+	{
+		return;
+	}
+
+	m_forward = Vector3::AxisZ;
+	m_rotation.Apply(m_forward);
 
 	diff.Normalize();
 	float angle = acosf(diff.Dot(m_forward));
@@ -382,24 +420,24 @@ void SpeedEnemy::CantLookMe()
 		return;
 	}
 
-	btTransform start, end;
-	start.setIdentity();
-	end.setIdentity();
+	//btTransform start, end;
+	//start.setIdentity();
+	//end.setIdentity();
 	//始点はエネミーの座標。
-	start.setOrigin(btVector3(m_position.x, m_position.y + COLLIDER_HEIGHT, m_position.z));
+	//start.setOrigin(btVector3(m_position.x, m_position.y + COLLIDER_HEIGHT, m_position.z));
 	//終点はプレイヤーの座標。
-	end.setOrigin(btVector3(playerPosition.x, playerPosition.y + COLLIDER_HEIGHT, playerPosition.z));
+	//end.setOrigin(btVector3(playerPosition.x, playerPosition.y + COLLIDER_HEIGHT, playerPosition.z));
 
-	SweepResultWall callback;
+	//SweepResultWall callback;
 	//コライダーを始点から終点まで動かして。
 	//衝突するかどうかを調べる。
-	PhysicsWorld::GetInstance()->ConvexSweepTest((const btConvexShape*)m_sphereCollider.GetBody(), start, end, callback);
+	//PhysicsWorld::GetInstance()->ConvexSweepTest((const btConvexShape*)m_sphereCollider.GetBody(), start, end, callback);
 	//壁と衝突した！
-	if (callback.isHit == true)
-	{
-		//プレイヤーは見つかっていない。
-		return;
-	}
+	//if (callback.isHit == true)
+	//{
+	//	プレイヤーは見つかっていない。
+	//	return;
+	//}
 
 	//壁と衝突してない！！
 	//プレイヤー見つけたフラグをtrueに。
@@ -443,5 +481,10 @@ void SpeedEnemy::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventN
 
 void SpeedEnemy::Render(RenderContext& rc)
 {
-	m_modelRender.Draw(rc);
+	//アクティブだったら
+	if (m_isActive == true)
+	{
+		//モデルを描画する
+		m_modelRender.Draw(rc);
+	}
 }

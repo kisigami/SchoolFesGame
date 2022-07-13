@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "collision/CollisionObject.h"
 
+#include "SpawnEnemy.h"
 
 namespace
 {
@@ -67,16 +68,15 @@ bool Enemy::Start()
 
 	//スフィアコライダーを初期化。
 	m_sphereCollider.Create(1.0f);
-
 	//パンチのボーンを探す
 	m_pumchBoneId = m_modelRender.FindBoneID(L"mixamorig:RightHand");
-
 	//キャラコンを初期化
 	m_charaCon.Init(CHARACON_RADIUS, CHARACON_HEIGHT,m_position);
 	//モデルの更新
 	m_modelRender.Update();
 	//プレイヤーのインスタンスを探す
 	m_player = FindGO<Player>("player");
+	m_spawnEnemy = FindGO<SpawnEnemy>("spawnenemy");
 
 	return true;
 }
@@ -84,7 +84,7 @@ bool Enemy::Start()
 void Enemy::Update()
 {
 	//プレイヤーから見られいるか？
-	CantLookMe();
+	//CantLookMe();
 	//攻撃処理
 	Attack();
 	//回転処理
@@ -125,14 +125,6 @@ void Enemy::Rotation()
 	m_modelRender.SetRotation(m_rotation);
 }
 
-void Enemy::Move()
-{
-}
-
-void Enemy::PathMove()
-{
-}
-
 void Enemy::Chase()
 {
 	//追跡ステートではなかったら
@@ -147,6 +139,7 @@ void Enemy::Chase()
 	vector.Normalize();
 	//移動速度＝プレイヤーに向かうベクトル×速度
 	m_moveSpeed = vector * MOVE_SPEED;
+	m_charaCon.SetPosition(m_position);
 	//キャラコンを使って座標を移動させる
 	m_position = m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
 	//座標の設定
@@ -221,19 +214,6 @@ void Enemy::Collision()
 		}
 	}
 }
-
-void Enemy::DeathSpawn()
-{
-	//座標を設定
-	m_position = { UNDERGROUND_POSITION,UNDERGROUND_POSITION,UNDERGROUND_POSITION };
-	m_modelRender.SetPosition(m_position);
-}
-
-void Enemy::Spawn()
-{
-
-}
-
 
 void Enemy::PlayAnimation()
 {
@@ -364,8 +344,11 @@ void Enemy::ProcessDownStateTransition()
 	//アニメーションの再生が終わったら
 	if (m_modelRender.IsPlayingAnimation() == false)
 	{
-		//どこかに飛ばす
-		DeathSpawn();
+		m_isActive = false;
+		m_hp = 6;
+		m_position = m_spawnEnemy->GetStayPoint();
+		m_charaCon.Init(CHARACON_RADIUS, CHARACON_HEIGHT, m_position);
+		m_enemyState = enEnemyState_Idle;
 	}
 }
 
@@ -399,6 +382,10 @@ void Enemy::CantLookMe()
 	Vector3 playerPosition = m_player->GetPosition();
 	Vector3 diff = playerPosition - m_position;
 
+	if (diff.LengthSq() >= 500.0f * 500.0f)
+	{
+		return;
+	}
 	diff.Normalize();
 	float angle = acosf(diff.Dot(m_forward));
 
@@ -470,6 +457,9 @@ void Enemy::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName)
 
 void Enemy::Render(RenderContext& rc)
 {
-	//モデルの更新
-	m_modelRender.Draw(rc);
+	if (m_isActive == true)
+	{
+		//モデルの更新
+		m_modelRender.Draw(rc);
+	}
 }
