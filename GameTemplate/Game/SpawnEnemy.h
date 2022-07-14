@@ -30,16 +30,16 @@ private:
 
 	const int MinNumber()const;
 
-	Vector3 m_stayPosition = Vector3::Zero;
-	const Point* m_point = nullptr;
-	int num = 0;
-	FontRender m_fontRender;
-	Enemy* m_enemy = nullptr;
-	SpeedEnemy* m_speedEnemy = nullptr;
+	Enemy*                     m_enemy = nullptr;
+	SpeedEnemy*                m_speedEnemy = nullptr;
+	const Point*               m_point = nullptr;
 	std::map<const int, Point> m_pointMap;
-	int m_countEnemy = 0;
-	int m_max = 0;
-	int n = 0;
-	float time = 0.0f;
+	FontRender                 m_fontRender;
+	Vector3                    m_stayPosition = Vector3::Zero;
+	
+	int                        m_countEnemy = 0;
+	int                        m_num = 0;
+	int                        m_max = 0;
+	float                      m_spawnTimer = 0.0f;
 };
 

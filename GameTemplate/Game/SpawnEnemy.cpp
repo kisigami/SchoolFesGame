@@ -5,6 +5,12 @@
 
 #include "SpeedEnemy.h"
 
+namespace
+{
+	const float SPAWN_TIME = 5.0f;
+	const float INIT_TIME = 0.0f;
+	const int SPAWN_ENEMY_NUM = 3;
+}
 
 SpawnEnemy::SpawnEnemy()
 {
@@ -29,13 +35,15 @@ bool SpawnEnemy::Start()
 
 void SpawnEnemy::Update()
 {
-	time += g_gameTime->GetFrameDeltaTime();
-	if (time < 5.0f)
+	m_spawnTimer += g_gameTime->GetFrameDeltaTime();
+	if (m_spawnTimer >= SPAWN_TIME)
 	{
+		//エネミーを再出現させる
 		NewGoEnemy();
-		time = 0.0f;
+		m_spawnTimer = INIT_TIME;
 	}
 
+	//あとでけす
 	wchar_t wcsbuf[256];
 	swprintf_s(wcsbuf, 256, L"%d", int());
 
@@ -64,7 +72,7 @@ void SpawnEnemy::LoadPoint()
 		else if (objData.ForwardMatchName(L"StayPoint") == true)
 		{
 			m_stayPosition = objData.position;
-			for (int i = 1; i <= 3; i++)
+			for (int i = 1; i <= SPAWN_ENEMY_NUM; i++)
 			{
 				auto speedEnemys = NewGO<SpeedEnemy>(0, "speedenemy");
 				speedEnemys->SetPosition(m_stayPosition);
@@ -80,26 +88,31 @@ void SpawnEnemy::LoadPoint()
 
 const Point* SpawnEnemy::RandomPoint()
 {
+	//乱数でポイントを返す
 	Point* point = &m_pointMap[0];
-	num = m_pointMap.size();
-	int randm = rand() % num;
-	num = randm;
-	point = &m_pointMap[num];
+	m_num = m_pointMap.size();
+	int randm = rand() % m_num;
+	m_num = randm;
+	point = &m_pointMap[m_num];
 	return point;
 }
 
 void SpawnEnemy::NewGoEnemy()
 {
+	//ポイントを取得
 	m_point = RandomPoint();
+	//非アクティブ、一番若いエネミー番号を取得
 	int num = MinNumber();
 	const auto& speedEnemys = FindGOs<SpeedEnemy>("speedenemy");
 	for (auto speedenemy : speedEnemys)
 	{
-		//ｎ番目のエネミーのフラグがtrueだったら
+		//非アクティブだったら
 		if (speedenemy->GetMyNumber() == num &&
 			speedenemy->GetActiveFlag() == false)
 		{
+			//ポイントの座標を代入
 			speedenemy->SetPosition(m_point->s_position);
+			//アクティブにする
 			speedenemy->SetActiveFlag(true);
 		}
 	}
@@ -107,19 +120,18 @@ void SpawnEnemy::NewGoEnemy()
 
 const int SpawnEnemy::MinNumber()const
 {
+	//非アクティブで一番若いエネミー番号を返す
 	const auto& speedEnemys = FindGOs<SpeedEnemy>("speedenemy");
 	for (auto speedenemy : speedEnemys)
 	{
-		//3番目のエネミー
+		
 		int j = m_countEnemy - 1;
 
 		for (int i = j; i >= 0; i--)
 		{
-			//ｎ番目のエネミーのフラグがtrueだったら
 			if (speedenemy->GetMyNumber() == i &&
 				speedenemy->GetActiveFlag() == false)
 			{
-				//入れ替える
 				if (j > i)
 				{
 					j = i;

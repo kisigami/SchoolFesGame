@@ -84,6 +84,7 @@ private:
 		enPlayerState_Idle,            //待機ステート
 		enPlayerState_Run,             //走りステート
 		enPlayerState_Shot,            //射撃ステート
+		enPlayerState_Reload,
 		enPlayerState_ReceiveDamage,   //被ダメージステート
 		enPlayerState_Down,            //ダウンステート
 	};
@@ -135,6 +136,7 @@ private:
 	/// 射撃ステートの遷移処理
 	/// </summary>
 	void ProcessShotStateTransition();
+	void ProcessReloadStateTransition();
 	/// <summary>
 	/// 被ダメージステートの遷移処理
 	/// </summary>
@@ -159,6 +161,7 @@ private:
 		enAnimClip_Idle,   //待機アニメーション
 		enAnimClip_Run,    //走りアニメーション
 		enAnimClip_Shot,   //射撃アニメーション
+		enAnimClip_Reload,
 		enAnimClip_Num          //アニメーションの数
 	};
 
@@ -180,5 +183,6 @@ private:
 	int                  m_hp = 100;                             //ヒットポイント
 	float                m_receiveDamageTimer = 1.0f;            //無敵タイマー
 	int                  m_killEnemyCount = 0;
+	SoundSource*         m_se = nullptr;
 };
 

@@ -46,10 +46,13 @@ void Player::InitAnimation()
 	m_animClips[enAnimClip_Run].SetLoopFlag(true);
 	m_animClips[enAnimClip_Shot].Load("Assets/animData/ar/shot.tka");
 	m_animClips[enAnimClip_Shot].SetLoopFlag(false);
+	m_animClips[enAnimClip_Reload].Load("Assets/animData/ar/reload.tka");
+	m_animClips[enAnimClip_Reload].SetLoopFlag(false);
 }
 
 bool Player::Start()
 {
+	g_soundEngine->ResistWaveFileBank(4, "Assets/sound/player/playerrunsound.wav");
 	//アニメーションの初期化
 	InitAnimation();
 	//カメラのインスタンスを取得
@@ -173,7 +176,7 @@ void Player::Move()
 		m_gameCamera->GetCameraPosition().x,
 		48.0f,
 		m_gameCamera->GetCameraPosition().z
-	);
+	); 
 }
 
 void Player::Collision()
@@ -249,6 +252,11 @@ void Player::PlayAnimation()
 		m_modelRender.PlayAnimation(enAnimClip_Shot, SHOT_ANIMATION_INTERPOLATE);
 		m_modelRender.SetAnimationSpeed(SHOT_ANIMATION_SPEED);
 		break;
+		//射撃ステートの時
+	case Player::enPlayerState_Reload:
+		m_modelRender.PlayAnimation(enAnimClip_Reload, SHOT_ANIMATION_INTERPOLATE);
+		m_modelRender.SetAnimationSpeed(2.0f);
+		break;
 	}
 }
 
@@ -267,6 +275,9 @@ void Player::ManageState()
 		//射撃ステートの時
 	case Player::enPlayerState_Shot:
 		ProcessShotStateTransition();
+		break;
+	case Player::enPlayerState_Reload:
+		ProcessReloadStateTransition();
 		break;
 		//被ダメージステートの時
 	case Player::enPlayerState_ReceiveDamage:
@@ -288,7 +299,12 @@ void Player::ProcessCommonStateTransition()
 		m_playerState = enPlayerState_Shot;
 		return;
 	}
-
+	if (g_pad[0]->IsPress(enButtonB))
+	{
+		//射撃ステートに移行する
+		m_playerState = enPlayerState_Reload;
+		return;
+	}
 	//移動速度があったら
 	if (fabsf(m_moveSpeed.x) >= MOVE_SPEED_MINIMUMVALUE ||
 		fabsf(m_moveSpeed.z) >= MOVE_SPEED_MINIMUMVALUE)
@@ -327,6 +343,15 @@ void Player::ProcessShotStateTransition()
 	}
 }
 
+void Player::ProcessReloadStateTransition()
+{
+	if (m_modelRender.IsPlayingAnimation() == false)
+	{
+		//共通のステートの遷移処理
+		ProcessCommonStateTransition();
+	}
+}
+
 void Player::ProcessReceiveDamageStateTransition()
 {
 	//無敵タイマーを減少させる
@@ -361,5 +386,4 @@ void Player::Render(RenderContext& rc)
 {
 	//モデルの描画
 	m_modelRender.Draw(rc);
-	//フォントの描画
 }

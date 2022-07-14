@@ -71,21 +71,7 @@ bool Game::Start()
 	//BGMを読み込む
 	g_soundEngine->ResistWaveFileBank(BGM_NUMBER, "Assets/sound/bgm.wav");
 
-	////ステージのレベルの読み込み
-	m_levelRender.Init("Assets/level3D/stage.tkl", [&](LevelObjectData& objData)
-		{
-			//オブジェクトの名前が「background」だったら
-			if (objData.EqualObjectName(L"background") == true)
-			{
-				//背景を作成する
-				m_backGround = NewGO<BackGround>(0, "background");
-				//座標を設定する
-				m_backGround->SetPosition(objData.position);
-				m_backGround->SetScale(objData.scale);
-				return true;
-			}
-			return true;
-		});
+	m_backGround = NewGO<BackGround>(0, "background");		
 
 	//フェードのインスタンスを探す
 	m_fade = FindGO<Fade>("fade");
@@ -93,13 +79,13 @@ bool Game::Start()
 	m_fade->StartFadeIn();
 
 	//BGMを作成する
-	m_bgm = NewGO<SoundSource>(0);
+	//m_bgm = NewGO<SoundSource>(0);
 	//BGMを初期化する
-	m_bgm->Init(BGM_NUMBER);
+	//m_bgm->Init(BGM_NUMBER);
 	//BGMを再生する（ループする）
-	m_bgm->Play(true);
+	//m_bgm->Play(true);
 	//BGMの大きさを設定する
-	m_bgm->SetVolume(BGM_VOLUME);
+	//m_bgm->SetVolume(BGM_VOLUME);
 	return true;
 }
 

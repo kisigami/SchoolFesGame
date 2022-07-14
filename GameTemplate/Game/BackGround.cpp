@@ -16,7 +16,6 @@ bool BackGround::Start()
 	//ƒ‚ƒfƒ‹‚Ì•`‰æ
 	m_modelRender.Init("Assets/modelData/background/background.tkm");
 	
-	m_modelRender.SetScale(m_scale);
 	m_modelRender.Update();
 	
 	//“–‚½‚è”»’è

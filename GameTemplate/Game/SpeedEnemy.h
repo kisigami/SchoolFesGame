@@ -1,5 +1,10 @@
 #pragma once
 
+#include "tkFile/TknFile.h"
+#include "AI/PathFinding/NaviMesh.h"
+#include "AI/PathFinding/Path.h"
+#include "AI/PathFinding/PathFinding.h"
+
 class Player;
 class Bullet;
 class SpawnEnemy;
@@ -46,12 +51,13 @@ private:
 		enEnemyState_Idle,         //待機ステート
 		enEnemyState_Run,          //走りステート
 		enEnemyState_Chase,        //追跡ステート
+		enEnemyState_PathChase,
 		enEnemyState_Attack,       //攻撃ステート
 		enEnemyState_Down,         //ダウンステート
 		enEnemyState_DeActive,     //ディアクテブ
 	};
 	float i = 0.0f;
-
+	void PathMove();
 	/// <summary>
 	/// アニメーションの初期化
 	/// </summary>
@@ -163,4 +169,10 @@ private:
 	int                  m_myNumber = 0;                        //マイナンバー
 	bool                 m_isActive = false;
 	SpawnEnemy* m_spawnEnemy = nullptr;
+	SoundSource* m_se = nullptr;
+	float          m_pathTimer = 1.0f;
+	TknFile m_tknFile;
+	nsAI::NaviMesh m_nvmMesh;
+	nsAI::Path m_path;
+	nsAI::PathFinding m_pathFiding;
 };

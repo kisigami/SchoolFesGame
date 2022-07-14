@@ -22,11 +22,6 @@
     <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="BackGround.cpp" />
     <ClCompile Include="Bullet.cpp" />
-    <ClCompile Include="Title.cpp" />
-    <ClCompile Include="Fade.cpp" />
-    <ClCompile Include="Enemy.cpp">
-      <Filter>enemy</Filter>
-    </ClCompile>
     <ClCompile Include="PlayerUi.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -39,7 +34,12 @@
     <ClCompile Include="GameUi.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Fade.cpp" />
     <ClCompile Include="Result.cpp" />
+    <ClCompile Include="Title.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -51,8 +51,6 @@
     <ClInclude Include="GameCamera.h" />
     <ClInclude Include="BackGround.h" />
     <ClInclude Include="Bullet.h" />
-    <ClInclude Include="Title.h" />
-    <ClInclude Include="Fade.h" />
     <ClInclude Include="Enemy.h">
       <Filter>enemy</Filter>
     </ClInclude>
@@ -68,6 +66,8 @@
     <ClInclude Include="GameUi.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="Fade.h" />
     <ClInclude Include="Result.h" />
+    <ClInclude Include="Title.h" />
   </ItemGroup>
 </Project>

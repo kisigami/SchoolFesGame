@@ -57,6 +57,7 @@ void SpeedEnemy::InitAnimation()
 
 bool SpeedEnemy::Start()
 {
+	g_soundEngine->ResistWaveFileBank(5, "Assets/sound/enemy/enemydownsound.wav");
 	//アニメーションの初期化
 	InitAnimation();
 	//モデルの読み込み
@@ -66,7 +67,7 @@ bool SpeedEnemy::Start()
 		OnAnimationEvent(clipName, eventName);
 	});
 	//スフィアコライダーを初期化。
-	//m_sphereCollider.Create(1.0f);
+	m_sphereCollider.Create(1.0f);
 	//パンチのボーンを探す
 	m_pumchBoneId = m_modelRender.FindBoneID(L"mixamorig1:LeftHand");
 	//キャラコンを初期化
@@ -78,6 +79,8 @@ bool SpeedEnemy::Start()
 	//プレイヤーのインスタンスを探す
 	m_player = FindGO<Player>("player");
 	m_spawnEnemy = FindGO<SpawnEnemy>("spawnenemy");
+
+	m_nvmMesh.Init("Assets/nvm/test.tkn");
 	return true;
 }
 
@@ -85,6 +88,7 @@ void SpeedEnemy::Update()
 {
 	if (m_isActive == true)
 	{
+		PathMove();
 		//プレイヤーから見られいるか？
 		CantLookMe();
 		//攻撃処理
@@ -108,6 +112,48 @@ void SpeedEnemy::Update()
 	m_modelRender.SetPosition(m_position);
 	m_modelRender.SetScale(Vector3::One * MODEL_SCALE);
 	m_modelRender.Update();
+}
+
+void SpeedEnemy::PathMove()
+{
+	if (m_enemyState != enEnemyState_PathChase)
+	{
+		return;
+	}
+
+	m_pathTimer += g_gameTime->GetFrameDeltaTime();
+
+	Vector3 nextPosition = Vector3::Zero;
+	bool isEnd;
+	if (m_pathTimer >= 1.0f)
+	{
+		// パス検索
+		m_pathFiding.Execute(
+			m_path,							// 構築されたパスの格納先
+			m_nvmMesh,						// ナビメッシュ
+			m_position,						// 開始座標
+			m_player->GetPosition(),		// 移動目標座標
+			PhysicsWorld::GetInstance(),	// 物理エンジン	
+			50.0f,							// AIエージェントの半径
+			200.0f							// AIエージェントの高さ。
+		);
+		m_pathTimer = 0.0f;
+	}
+
+	// パス上を移動する。
+	nextPosition = m_path.Move(
+		m_position,
+		5.0f,
+		isEnd
+	);
+
+	Vector3 vector = nextPosition - m_position;
+	vector.Normalize();
+
+	m_moveSpeed = vector * 125.0f;
+	m_charaCon.SetPosition(m_position);
+	m_position = m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
+
 }
 
 void SpeedEnemy::DeActive()
@@ -162,8 +208,6 @@ void SpeedEnemy::Chase()
 	m_charaCon.SetPosition(m_position);
 	//キャラコンを使って座標を移動させる
 	m_position = m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
-	//座標の設定
-	m_modelRender.SetPosition(m_position);
 }
 
 void SpeedEnemy::Attack()
@@ -253,6 +297,10 @@ void SpeedEnemy::PlayAnimation()
 		m_modelRender.PlayAnimation(enAnimClip_Run, RUN_ANIMATION_INTERPOLATE);
 		m_modelRender.SetAnimationSpeed(RUN_ANIMATION_SPEED);
 		break;
+	case SpeedEnemy::enEnemyState_PathChase:
+		m_modelRender.PlayAnimation(enAnimClip_Run, RUN_ANIMATION_INTERPOLATE);
+		m_modelRender.SetAnimationSpeed(RUN_ANIMATION_SPEED);
+		break;
 		//走りステートの時
 	case SpeedEnemy::enEnemyState_Run:
 		m_modelRender.PlayAnimation(enAnimClip_Run, RUN_ANIMATION_INTERPOLATE);
@@ -280,6 +328,9 @@ void SpeedEnemy::ManageState()
 		ProcessIdleStateTransition();
 		break;
 	case SpeedEnemy::enEnemyState_Chase:
+		ProcessChaseStateTransition();
+		break;
+	case SpeedEnemy::enEnemyState_PathChase:
 		ProcessChaseStateTransition();
 		break;
 		//走りステートの時
@@ -331,7 +382,7 @@ void SpeedEnemy::ProcessCommonStateTransition()
 	else
 	{
 		//待機ステートに移行する
-		m_enemyState = enEnemyState_Idle;
+		m_enemyState = enEnemyState_PathChase;
 	}
 }
 
@@ -402,11 +453,6 @@ void SpeedEnemy::CantLookMe()
 	Vector3 playerPosition = m_player->GetPosition();
 	Vector3 diff = playerPosition - m_position;
 
-	if (diff.LengthSq() >= 1000.0f * 1000.0f)
-	{
-		return;
-	}
-
 	m_forward = Vector3::AxisZ;
 	m_rotation.Apply(m_forward);
 
@@ -420,24 +466,24 @@ void SpeedEnemy::CantLookMe()
 		return;
 	}
 
-	//btTransform start, end;
-	//start.setIdentity();
-	//end.setIdentity();
+	btTransform start, end;
+	start.setIdentity();
+	end.setIdentity();
 	//始点はエネミーの座標。
-	//start.setOrigin(btVector3(m_position.x, m_position.y + COLLIDER_HEIGHT, m_position.z));
+	start.setOrigin(btVector3(m_position.x, m_position.y + COLLIDER_HEIGHT, m_position.z));
 	//終点はプレイヤーの座標。
-	//end.setOrigin(btVector3(playerPosition.x, playerPosition.y + COLLIDER_HEIGHT, playerPosition.z));
+	end.setOrigin(btVector3(playerPosition.x, playerPosition.y + COLLIDER_HEIGHT, playerPosition.z));
 
-	//SweepResultWall callback;
+	SweepResultWall callback;
 	//コライダーを始点から終点まで動かして。
 	//衝突するかどうかを調べる。
-	//PhysicsWorld::GetInstance()->ConvexSweepTest((const btConvexShape*)m_sphereCollider.GetBody(), start, end, callback);
+	PhysicsWorld::GetInstance()->ConvexSweepTest((const btConvexShape*)m_sphereCollider.GetBody(), start, end, callback);
 	//壁と衝突した！
-	//if (callback.isHit == true)
-	//{
-	//	プレイヤーは見つかっていない。
-	//	return;
-	//}
+	if (callback.isHit == true)
+	{
+		//プレイヤーは見つかっていない。
+		return;
+	}
 
 	//壁と衝突してない！！
 	//プレイヤー見つけたフラグをtrueに。
@@ -473,6 +519,23 @@ void SpeedEnemy::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventN
 	}
 	//キーの名前が「attack_end」なら
 	else if (wcscmp(eventName, L"attack_end") == 0)
+	{
+		//攻撃中じゃない
+		m_attacking = false;
+	}
+	if (wcscmp(eventName, L"run_start") == 0)
+	{
+		////銃声SEを作成する
+		//m_se = NewGO<SoundSource>(0);
+		////銃声SEを初期化する
+		//m_se->Init(SHOT_SE_NUMBER);
+		////銃声SEを再生する（ループなし）
+		//m_se->Play(false);
+		////銃声SEの大きさを設定
+		//m_se->SetVolume(SHOT_SE_SCALE);
+	}
+	//キーの名前が「attack_end」なら
+	else if (wcscmp(eventName, L"run_end") == 0)
 	{
 		//攻撃中じゃない
 		m_attacking = false;
