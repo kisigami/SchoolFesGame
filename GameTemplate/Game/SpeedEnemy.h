@@ -4,6 +4,7 @@
 #include "AI/PathFinding/NaviMesh.h"
 #include "AI/PathFinding/Path.h"
 #include "AI/PathFinding/PathFinding.h"
+
 //クラス宣言
 class Player;     //プレイヤークラス
 class Bullet;     //弾クラス
@@ -85,6 +86,18 @@ private:
 		enEnemyState_DeActive,     //非活動ステート
 	};
 	
+	/// <summary>
+	//アニメーションクリップの番号を表す
+	/// </summary>
+	enum EnAnimationClip
+	{
+		enAnimClip_Idle,   //待機アニメーション
+		enAnimClip_Run,    //走りアニメーション
+		enAnimClip_Attack, //攻撃アニメーション
+		enAnimClip_Down,   //ダウンアニメーション
+		enAnimClip_Num     //アニメーションの数
+	};
+
 	void DeActive();
 
 	/// <summary>
@@ -150,7 +163,7 @@ private:
 	/// <param name="eventName">イベント名</param>
 	void OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName);
 	/// <summary>
-	/// プレイヤーからみえていないか？
+	/// プレイヤーから見えているか？
 	/// </summary>
 	/// <returns>trueなら見えている</returns>
 	void CantLookMe();
@@ -159,45 +172,44 @@ private:
 	/// </summary>
 	/// <returns>trueならできる</returns>
 	const bool CanAttack() const;
+
 	/// <summary>
-	//アニメーションクリップの番号を表す
-	/// </summary>
-	enum EnAnimationClip
-	{
-		enAnimClip_Idle,   //待機アニメーション
-		enAnimClip_Run,    //走りアニメーション
-		enAnimClip_Attack, //攻撃アニメーション
-		enAnimClip_Down,   //ダウンアニメーション
-		enAnimClip_Num     //アニメーションの数
-	};
+    /// 鳴き声再生処理
+    /// </summary>
+	void PlayNeowingSE();
+	/// <summary>
+    /// 攻撃音の再生
+    /// </summary>
+	void PlayAttackSE();
 
-	Bullet* m_bullet = nullptr;                    //弾
-	Player* m_player = nullptr;                    //プレイヤー
+	//クラス定義
+	Bullet*             m_bullet = nullptr;               //弾
+	Player*             m_player = nullptr;               //プレイヤー
+	SpawnEnemy*         m_spawnEnemy = nullptr;           //エネミー出現
+	//ステータス
+	EnEnemyState        m_enemyState = enEnemyState_Idle; //エネミーステート
+	int                 m_hp = 3;                         //HP
+	int                 m_myNumber = 0;                   //マイナンバー
+	//フラグ
+	bool                m_mitukatta = false;              //見つかったか？
+	bool                m_attacking = false;              //攻撃中か？
+	bool                m_isActive = false;               //活動中か？
+	//経路探索
+	TknFile             m_tknFile;                        //tkmファイル
+	nsAI::NaviMesh      m_nvmMesh;                        //ナビメッシュ
+	nsAI::Path          m_path;                           //パス
+	nsAI::PathFinding   m_pathFiding;                     //パス検索
+	float               m_pathTimer = 1.0f;               //パス検索タイマー
 
-	ModelRender          m_modelRender;
-	Animation            m_animation;                           //アニメーション
-	AnimationClip        m_animClips[enAnimClip_Num];           //アニメーションクリップ
-	Vector3              m_position;                            //座標
-	Vector3              m_scale;                               //大きさ
-	Vector3              m_moveSpeed;                           //移動速度
-	Vector3              m_forward = Vector3::AxisZ;            //エネミーの前方向のベクトル
-	Quaternion           m_rotation;                            //回転
-	EnEnemyState         m_enemyState = enEnemyState_Idle;      //エネミーステート
-	CharacterController  m_charaCon;                            //キャラコン
-	int                  m_hp = 3;                              //HP
-	bool                 m_mitukatta = false;                    //見つかったか
-	SphereCollider	     m_sphereCollider;                       //スヒアコライダー
-	bool                 m_attacking = false;                    //攻撃中か
-	int				     m_pumchBoneId = -1;                     //パンチのボーン
-	int                  m_myNumber = 0;                        //マイナンバー
-	bool                 m_isActive = false;
-	SpawnEnemy* m_spawnEnemy = nullptr;
-	SoundSource* m_se = nullptr;
-	SoundSource* m_walkse;
-	bool soundflag = false;
-	float          m_pathTimer = 1.0f;
-	TknFile m_tknFile;
-	nsAI::NaviMesh m_nvmMesh;
-	nsAI::Path m_path;
-	nsAI::PathFinding m_pathFiding;
+	ModelRender         m_modelRender;                    //モデルレンダー
+	Animation           m_animation;                      //アニメーション
+	AnimationClip       m_animClips[enAnimClip_Num];      //アニメーションクリップ
+	Vector3             m_position;                       //座標
+	Vector3             m_scale;                          //大きさ
+	Vector3             m_moveSpeed;                      //移動速度
+	Vector3             m_forward = Vector3::AxisZ;       //エネミーの前方向のベクトル
+	Quaternion          m_rotation;                       //回転
+	CharacterController m_charaCon;                       //キャラコン
+	SphereCollider	    m_sphereCollider;                 //スフィアコライダー
+	int				    m_pumchBoneId = -1;               //パンチのボーン
 };

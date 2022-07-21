@@ -13,6 +13,7 @@ class SpeedEnemy;    //スピードエネミークラス
 class SpawnEnemy;
 class GameUi;
 class Result;
+class EffectSound;
 
 /// <summary>
 /// ゲームクラス
@@ -51,6 +52,7 @@ private:
 	SpawnEnemy*  m_spawnEnemy = nullptr;
 	GameUi* m_gameUi = nullptr;
 	Result* m_result = nullptr;
+	EffectSound* m_effectsound = nullptr;
 
 	LevelRender  m_levelRender;            //レベルレンダー
 	FPSLimitter m_fpsLimitter;

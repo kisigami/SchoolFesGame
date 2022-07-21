@@ -16,6 +16,7 @@
 
 #include "time/FPSLimitter.h"
 #include "SpawnEnemy.h"
+#include "EffectSound.h"
 
 namespace
 {
@@ -45,6 +46,7 @@ Game::~Game()
 
 bool Game::Start()
 {
+	m_effectsound = NewGO<EffectSound>(0, "effectsound");
 	m_fpsLimitter.SetMaxFPS(35);
 	//スカイキューブとか環境光とかいろいろ
 	DeleteGO(m_skyCube);

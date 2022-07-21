@@ -34,6 +34,10 @@ namespace
 	const float COLLIDER_RADIUS = 3.0f;              //スフィアコライダーの半径
 	const float COLLIDER_HEIGHT = 60.0f;             //コライダーの発射時の高
 	const float LOOKME_ANGLE = 0.3f;                 //プレイヤーを見つける角度
+	const int   NEOWING_SE_NUMBER = 5;
+	const float NEOWING_SE_VOLUME = 0.3f;
+	const int   ATTACK_SE_NUMBER = 22;
+	const float ATTACK_SE_VOLUME = 0.4f;
 }
 
 SpeedEnemy::SpeedEnemy()
@@ -42,7 +46,6 @@ SpeedEnemy::SpeedEnemy()
 
 SpeedEnemy::~SpeedEnemy()
 {
-	DeleteGO(m_walkse);
 }
 
 void SpeedEnemy::InitAnimation()
@@ -61,12 +64,6 @@ void SpeedEnemy::InitAnimation()
 
 bool SpeedEnemy::Start()
 {
-	g_soundEngine->ResistWaveFileBank(5, "Assets/sound/enemy/enemydownsound.wav");
-	g_soundEngine->ResistWaveFileBank(11, "Assets/sound/enemy/walksound2.wav");
-	g_soundEngine->ResistWaveFileBank(22, "Assets/sound/enemy/pumch.wav");
-	//エフェクトを読み込んで登録する
-	EffectEngine::GetInstance()->ResistEffect(11, u"Assets/effect/efk/blood.efk");
-
 	//アニメーションの初期化
 	InitAnimation();
 	//モデルの読み込み
@@ -87,31 +84,51 @@ bool SpeedEnemy::Start()
 	m_modelRender.Update();
 	//プレイヤーのインスタンスを探す
 	m_player = FindGO<Player>("player");
+	//エネミー出現のインスタンスを探す
 	m_spawnEnemy = FindGO<SpawnEnemy>("spawnenemy");
-
+	//ナビメッシュを読み込む
 	m_nvmMesh.Init("Assets/nvm/test.tkn");
 	return true;
 }
 
+void SpeedEnemy::DeActive()
+{
+	//活動中ではなかったら
+	if (m_isActive == false)
+	{
+		//待機ステートに移行する
+		m_enemyState = enEnemyState_Idle;
+		//地面に埋める
+		m_position.y -= 2000.0f/*m_spawnEnemy->GetStayPoint()*/;
+		//キャラコンを移動させる
+		m_charaCon.Init(CHARACON_RADIUS, CHARACON_HEIGHT, m_position);
+		//HPを元に戻す
+		m_hp = 3;
+		m_pathTimer = 1.0f;
+	}
+}
+
 void SpeedEnemy::Update()
 {
+	//活動中だったら
 	if (m_isActive == true)
 	{
-		PathMove();
-		//プレイヤーから見られいるか？
-		CantLookMe();
-		//攻撃処理
-		Attack();
-		//回転処理
-		Rotation();
 		//追跡処理
 		Chase();
-		//アニメーションの再生
-		PlayAnimation();
+		//パス移動処理
+		PathMove();
+		//回転処理
+		Rotation();
 		//当たり判定処理
 		Collision();
+		//攻撃処理
+		Attack();
+		//アニメーションの再生
+		PlayAnimation();
 		//各ステートの遷移処理
 		ManageState();
+		//プレイヤーが見えているか？
+		CantLookMe();
 	}
 
 	m_charaCon.SetPosition(m_position);
@@ -121,6 +138,26 @@ void SpeedEnemy::Update()
 	m_modelRender.SetPosition(m_position);
 	m_modelRender.SetScale(Vector3::One * MODEL_SCALE);
 	m_modelRender.Update();
+}
+
+void SpeedEnemy::Chase()
+{
+	//追跡ステートではなかったら
+	if (m_enemyState != enEnemyState_Chase)
+	{
+		//何もしない
+		return;
+	}
+	//プレイヤーに向かうベクトル
+	Vector3 vector = m_player->GetPosition() - m_position;
+	//正規化
+	vector.Normalize();
+	//移動速度＝移動ベクトル×速度
+	m_moveSpeed = vector * MOVE_SPEED;
+	//キャラコンの座標設定
+	m_charaCon.SetPosition(m_position);
+	//キャラコンを使って座標を移動させる
+	m_position = m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
 }
 
 void SpeedEnemy::PathMove()
@@ -174,23 +211,6 @@ void SpeedEnemy::PathMove()
 
 }
 
-void SpeedEnemy::DeActive()
-{
-	//アクティブではなかったら
-	if (m_isActive == false)
-	{
-		//待機ステートに移行する
-		m_enemyState = enEnemyState_Idle;
-		//待機座標に移動する
-		m_position = m_spawnEnemy->GetStayPoint();
-		//キャラコンを移動させる
-		m_charaCon.Init(CHARACON_RADIUS, CHARACON_HEIGHT, m_position);
-		//HPを元に戻す
-		m_hp = 3;
-		m_pathTimer = 1.0f;
-	}
-}
-
 void SpeedEnemy::Rotation()
 {
 	//これが回転角度になる。
@@ -203,59 +223,6 @@ void SpeedEnemy::Rotation()
 
 	//回転の設定
 	m_modelRender.SetRotation(m_rotation);
-}
-
-void SpeedEnemy::Chase()
-{
-	//追跡ステートではなかったら
-	if (m_enemyState != enEnemyState_Chase)
-	{
-		//何もしない
-		return;
-	}
-	//プレイヤーに向かうベクトル
-	Vector3 vector = m_player->GetPosition() - m_position;
-	//正規化
-	vector.Normalize();
-	//移動速度＝プレイヤーに向かうベクトル×速度
-	m_moveSpeed = vector * MOVE_SPEED;
-	m_charaCon.SetPosition(m_position);
-	//キャラコンを使って座標を移動させる
-	m_position = m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
-}
-
-void SpeedEnemy::Attack()
-{
-	//攻撃ステートではなかったら
-	if (m_enemyState != enEnemyState_Attack)
-	{
-		//何もしない
-		return;
-	}
-	//攻撃中なら
-	if (m_attacking == true)
-	{
-
-		//攻撃の当たり判定を作成する
-		MakeAttackCollision();
-	}
-}
-
-void SpeedEnemy::MakeAttackCollision()
-{
-	//攻撃当たり判定用のコリジョンオブジェクトを作成する。
-	auto collisionObject = NewGO<CollisionObject>(0);
-	//剣のボーンのワールド行列を取得する。
-	Matrix matrix = m_modelRender.GetBone(m_pumchBoneId)->GetWorldMatrix();
-	//ボックス状のコリジョンを作成する。
-	collisionObject->CreateBox(m_position,
-		Quaternion::Identity,
-		Vector3(ATTACK_COLLISION_SIZE_X,
-			ATTACK_COLLISION_SIZE_Y,
-			ATTACK_COLLISION_SIZE_Z));
-	collisionObject->SetWorldMatrix(matrix);
-	//コリジョンに名前
-	collisionObject->SetName("enemy_attack");
 }
 
 void SpeedEnemy::Collision()
@@ -289,15 +256,8 @@ void SpeedEnemy::Collision()
 				{
 					//ダウンステートに移行する
 					m_enemyState = enEnemyState_Down;
-
-					//鳴き声を作成する
-					m_se = NewGO<SoundSource>(0);
-					//鳴き声を初期化する
-					m_se->Init(5);
-					//鳴き声の大きさを設定
-					m_se->SetVolume(0.3f);
-					//鳴き声を再生する（ループなし）
-					m_se->Play(false);
+					//鳴き声を再生する
+					PlayNeowingSE();
 					//キャラコンを削除する
 					m_charaCon.RemoveRigidBoby();
 					//カウントを進める
@@ -311,6 +271,39 @@ void SpeedEnemy::Collision()
 	}
 }
 
+void SpeedEnemy::Attack()
+{
+	//攻撃ステートではなかったら
+	if (m_enemyState != enEnemyState_Attack)
+	{
+		//何もしない
+		return;
+	}
+	//攻撃中なら
+	if (m_attacking == true)
+	{
+		//攻撃用コリジョン生成処理
+		MakeAttackCollision();
+	}
+}
+
+void SpeedEnemy::MakeAttackCollision()
+{
+	//攻撃当たり判定用のコリジョンオブジェクトを作成する。
+	auto collisionObject = NewGO<CollisionObject>(0);
+	//剣のボーンのワールド行列を取得する。
+	Matrix matrix = m_modelRender.GetBone(m_pumchBoneId)->GetWorldMatrix();
+	//ボックス状のコリジョンを作成する。
+	collisionObject->CreateBox(m_position,
+		Quaternion::Identity,
+		Vector3(ATTACK_COLLISION_SIZE_X,
+			ATTACK_COLLISION_SIZE_Y,
+			ATTACK_COLLISION_SIZE_Z));
+	collisionObject->SetWorldMatrix(matrix);
+	//コリジョンに名前をつける
+	collisionObject->SetName("enemy_attack");
+}
+
 void SpeedEnemy::PlayAnimation()
 {
 	switch (m_enemyState)
@@ -320,18 +313,13 @@ void SpeedEnemy::PlayAnimation()
 		m_modelRender.PlayAnimation(enAnimClip_Idle, IDLE_ANIMATION_INTERPOLATE);
 		m_modelRender.SetAnimationSpeed(IDLE_ANIMATION_SPEED);
 		break;
-		//プレイヤーが見える追跡ステートの時
+		//追跡ステートの時
 	case SpeedEnemy::enEnemyState_Chase:
 		m_modelRender.PlayAnimation(enAnimClip_Run, RUN_ANIMATION_INTERPOLATE);
 		m_modelRender.SetAnimationSpeed(RUN_ANIMATION_SPEED);
 		break;
-		//プレイヤーが見えない追跡ステートの時
+		//パス移動ステートの時
 	case SpeedEnemy::enEnemyState_PathChase:
-		m_modelRender.PlayAnimation(enAnimClip_Run, RUN_ANIMATION_INTERPOLATE);
-		m_modelRender.SetAnimationSpeed(RUN_ANIMATION_SPEED);
-		break;
-		//走りステートの時
-	case SpeedEnemy::enEnemyState_Run:
 		m_modelRender.PlayAnimation(enAnimClip_Run, RUN_ANIMATION_INTERPOLATE);
 		m_modelRender.SetAnimationSpeed(RUN_ANIMATION_SPEED);
 		break;
@@ -356,11 +344,11 @@ void SpeedEnemy::ManageState()
 	case SpeedEnemy::enEnemyState_Idle:
 		ProcessIdleStateTransition();
 		break;
-		//プレイヤーが見える追跡ステートの時
+		//追跡ステートの時
 	case SpeedEnemy::enEnemyState_Chase:
 		ProcessChaseStateTransition();
 		break;
-		//プレイヤーが見えない追跡ステートの時
+		//パス移動ステートの時
 	case SpeedEnemy::enEnemyState_PathChase:
 		ProcessChaseStateTransition();
 		break;
@@ -535,14 +523,10 @@ void SpeedEnemy::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventN
 	//キーの名前が「attack_start」なら
 	if (wcscmp(eventName, L"attack_start") == 0)
 	{
-		//攻撃音を再生する
-		SoundSource* se;
-		se = NewGO<SoundSource>(0);
-		se->Init(22);
-		se->SetVolume(0.4f);
-		se->Play(false);
 		//攻撃中
 		m_attacking = true;
+		//攻撃音を再生する
+		PlayAttackSE();
 	}
 	//キーの名前が「attack_end」なら
 	else if (wcscmp(eventName, L"attack_end") == 0)
@@ -553,9 +537,36 @@ void SpeedEnemy::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventN
 
 }
 
+void SpeedEnemy::PlayAttackSE()
+{
+	//攻撃音を再生する
+	SoundSource* se;
+	//攻撃音を生成する
+	se = NewGO<SoundSource>(0);
+	//攻撃音を初期化する
+	se->Init(ATTACK_SE_NUMBER);
+	//攻撃音の大きさを設定する
+	se->SetVolume(ATTACK_SE_VOLUME);
+	//攻撃音を再生する
+	se->Play(false);
+}
+
+void SpeedEnemy::PlayNeowingSE()
+{
+	SoundSource* se;
+	//鳴き声を作成する
+	se = NewGO<SoundSource>(0);
+	//鳴き声を初期化する
+	se->Init(NEOWING_SE_NUMBER);
+	//鳴き声の大きさを設定
+	se->SetVolume(NEOWING_SE_VOLUME);
+	//鳴き声を再生する（ループなし）
+	se->Play(false);
+}
+
 void SpeedEnemy::Render(RenderContext& rc)
 {
-	//アクティブだったら
+	//活動中だったら
 	if (m_isActive == true)
 	{
 		//モデルを描画する

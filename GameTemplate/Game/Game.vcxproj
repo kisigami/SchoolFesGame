@@ -233,6 +233,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerUi.cpp" />
+    <ClCompile Include="EffectSound.cpp" />
     <ClCompile Include="Result.cpp" />
     <ClCompile Include="SpawnEnemy.cpp" />
     <ClCompile Include="SpeedEnemy.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="GameUi.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerUi.h" />
+    <ClInclude Include="EffectSound.h" />
     <ClInclude Include="Result.h" />
     <ClInclude Include="SpawnEnemy.h" />
     <ClInclude Include="SpeedEnemy.h" />
