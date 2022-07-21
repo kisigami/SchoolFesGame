@@ -97,7 +97,6 @@ void SpeedEnemy::Update()
 {
 	if (m_isActive == true)
 	{
-		MoveSound();
 		PathMove();
 		//プレイヤーから見られいるか？
 		CantLookMe();
@@ -126,15 +125,19 @@ void SpeedEnemy::Update()
 
 void SpeedEnemy::PathMove()
 {
+	//パス移動ステートではなかったら
 	if (m_enemyState != enEnemyState_PathChase)
 	{
+		//何もしない
 		return;
 	}
-
+	//パス検索タイマーをカウントする
 	m_pathTimer += g_gameTime->GetFrameDeltaTime();
-
+	//目的地の座標
 	Vector3 nextPosition = Vector3::Zero;
+
 	bool isEnd;
+	//パス検索タイマーが越えたら
 	if (m_pathTimer >= 0.5f)
 	{
 		// パス検索
@@ -147,21 +150,26 @@ void SpeedEnemy::PathMove()
 			50.0f,							// AIエージェントの半径
 			200.0f							// AIエージェントの高さ。
 		);
+		//パス検索タイマーを初期化する
 		m_pathTimer = 0.0f;
 	}
 
-	// パス上を移動する。
+	//パス上を移動する。
 	nextPosition = m_path.Move(
-		m_position,
-		5.0f,
-		isEnd
+		m_position,                   //座標
+		5.0f,                         //移動速度
+		isEnd                         //フラグをfalseにする
 	);
 
+	//目的地へ向かうベクトルを計算する
 	Vector3 vector = nextPosition - m_position;
+	//正規化する
 	vector.Normalize();
-
+	//移動速度＝移動ベクトル×速度
 	m_moveSpeed = vector * 125.0f;
+	//キャラコンの座標を設定する
 	m_charaCon.SetPosition(m_position);
+	//キャラコンを使って座標を移動させる
 	m_position = m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
 
 }
@@ -187,13 +195,8 @@ void SpeedEnemy::Rotation()
 {
 	//これが回転角度になる。
 	float angle = atan2(-m_moveSpeed.x, m_moveSpeed.z);
-	//atanが返してくる角度はラジアン単位なので
-	//SetRotationDegではなくSetRotationを使用する。
+	//クオータニオンを設定する
 	m_rotation.SetRotationY(-angle);
-
-	//回転を設定する。
-	m_modelRender.SetRotation(m_rotation);
-
 	//プレイヤーの前ベクトルを計算する。
 	m_forward = Vector3::AxisZ;
 	m_rotation.Apply(m_forward);
@@ -251,6 +254,7 @@ void SpeedEnemy::MakeAttackCollision()
 			ATTACK_COLLISION_SIZE_Y,
 			ATTACK_COLLISION_SIZE_Z));
 	collisionObject->SetWorldMatrix(matrix);
+	//コリジョンに名前
 	collisionObject->SetName("enemy_attack");
 }
 
@@ -272,6 +276,7 @@ void SpeedEnemy::Collision()
 			//コリジョンとキャラコンが衝突したら。
 			if (collision->IsHit(m_charaCon))
 			{
+				//プレイヤーを発見する
 				m_mitukatta = true;
 				//HPを減らす。
 				m_hp -= REACT_DAMAGE_VALUE;
@@ -285,19 +290,16 @@ void SpeedEnemy::Collision()
 					//ダウンステートに移行する
 					m_enemyState = enEnemyState_Down;
 
-					//銃声SEを作成する
+					//鳴き声を作成する
 					m_se = NewGO<SoundSource>(0);
-					//銃声SEを初期化する
+					//鳴き声を初期化する
 					m_se->Init(5);
-					//銃声SEの大きさを設定
-					m_se->SetVolume(0.2f);
-					m_se->SetPosition(m_position);
-					//銃声SEを再生する（ループなし）
+					//鳴き声の大きさを設定
+					m_se->SetVolume(0.3f);
+					//鳴き声を再生する（ループなし）
 					m_se->Play(false);
-
-
+					//キャラコンを削除する
 					m_charaCon.RemoveRigidBoby();
-
 					//カウントを進める
 					int counter = m_player->GetKillEnemyCount();
 					counter += 1;
@@ -318,11 +320,12 @@ void SpeedEnemy::PlayAnimation()
 		m_modelRender.PlayAnimation(enAnimClip_Idle, IDLE_ANIMATION_INTERPOLATE);
 		m_modelRender.SetAnimationSpeed(IDLE_ANIMATION_SPEED);
 		break;
-		//追跡ステートの時
+		//プレイヤーが見える追跡ステートの時
 	case SpeedEnemy::enEnemyState_Chase:
 		m_modelRender.PlayAnimation(enAnimClip_Run, RUN_ANIMATION_INTERPOLATE);
 		m_modelRender.SetAnimationSpeed(RUN_ANIMATION_SPEED);
 		break;
+		//プレイヤーが見えない追跡ステートの時
 	case SpeedEnemy::enEnemyState_PathChase:
 		m_modelRender.PlayAnimation(enAnimClip_Run, RUN_ANIMATION_INTERPOLATE);
 		m_modelRender.SetAnimationSpeed(RUN_ANIMATION_SPEED);
@@ -353,15 +356,13 @@ void SpeedEnemy::ManageState()
 	case SpeedEnemy::enEnemyState_Idle:
 		ProcessIdleStateTransition();
 		break;
+		//プレイヤーが見える追跡ステートの時
 	case SpeedEnemy::enEnemyState_Chase:
 		ProcessChaseStateTransition();
 		break;
+		//プレイヤーが見えない追跡ステートの時
 	case SpeedEnemy::enEnemyState_PathChase:
 		ProcessChaseStateTransition();
-		break;
-		//走りステートの時
-	case SpeedEnemy::enEnemyState_Run:
-		ProcessRunStateTransition();
 		break;
 		//ダウンステートの時
 	case SpeedEnemy::enEnemyState_Down:
@@ -419,12 +420,6 @@ void SpeedEnemy::ProcessIdleStateTransition()
 }
 
 void SpeedEnemy::ProcessChaseStateTransition()
-{
-	//共通のステートの遷移処理へ
-	ProcessCommonStateTransition();
-}
-
-void SpeedEnemy::ProcessRunStateTransition()
 {
 	//共通のステートの遷移処理へ
 	ProcessCommonStateTransition();
@@ -516,11 +511,6 @@ void SpeedEnemy::CantLookMe()
 	m_mitukatta = true;
 }
 
-void SpeedEnemy::MoveSound()
-{
-
-}
-
 const bool SpeedEnemy::CanAttack() const
 {
 	//プレイヤーを見つけたなら
@@ -545,12 +535,13 @@ void SpeedEnemy::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventN
 	//キーの名前が「attack_start」なら
 	if (wcscmp(eventName, L"attack_start") == 0)
 	{
-		//攻撃中
+		//攻撃音を再生する
 		SoundSource* se;
 		se = NewGO<SoundSource>(0);
 		se->Init(22);
 		se->SetVolume(0.4f);
 		se->Play(false);
+		//攻撃中
 		m_attacking = true;
 	}
 	//キーの名前が「attack_end」なら

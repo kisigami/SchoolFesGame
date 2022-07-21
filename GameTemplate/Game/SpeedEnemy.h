@@ -4,11 +4,14 @@
 #include "AI/PathFinding/NaviMesh.h"
 #include "AI/PathFinding/Path.h"
 #include "AI/PathFinding/PathFinding.h"
+//クラス宣言
+class Player;     //プレイヤークラス
+class Bullet;     //弾クラス
+class SpawnEnemy; //エネミー出現クラス
 
-class Player;
-class Bullet;
-class SpawnEnemy;
-
+/// <summary>
+/// スピードエネミークラス
+/// </summary>
 class SpeedEnemy :public IGameObject
 {
 public:
@@ -17,29 +20,54 @@ public:
 	bool Start();
 	void Update();
 	void Render(RenderContext& rc);
-	const Vector3& GetPosition() const
-	{
-		return m_position;
-	}
+
+	/// <summary>
+	/// 座標を設定
+	/// </summary>
+	/// <param name="position">座標</param>
 	void SetPosition(const Vector3& position)
 	{
 		m_position = position;
 	}
-	const bool& GetActiveFlag() const
+	/// <summary>
+	/// 座標を取得
+	/// </summary>
+	/// <returns>座標</returns>
+	const Vector3& GetPosition() const
 	{
-		return m_isActive;
+		return m_position;
 	}
-	void SetActiveFlag(const bool& flag)
-	{
-		m_isActive = flag;
-	}
+	/// <summary>
+	/// マイナンバーを設定
+	/// </summary>
+	/// <param name="position">番号</param>
 	void SetMyNumber(const int& position)
 	{
 		m_myNumber = position;
 	}
+	/// <summary>
+	/// マイナンバーを取得
+	/// </summary>
+	/// <returns>番号</returns>
 	const int& GetMyNumber() const
 	{
 		return m_myNumber;
+	}
+	/// <summary>
+	/// 活動フラグを設定
+	/// </summary>
+	/// <param name="flag">フラグ</param>
+	void SetActiveFlag(const bool& flag)
+	{
+		m_isActive = flag;
+	}
+	/// <summary>
+	/// 活動フラグを取得
+	/// </summary>
+	/// <returns>フラグ</returns>
+	const bool& GetActiveFlag() const
+	{
+		return m_isActive;
 	}
 
 private:
@@ -51,32 +79,32 @@ private:
 		enEnemyState_Idle,         //待機ステート
 		enEnemyState_Run,          //走りステート
 		enEnemyState_Chase,        //追跡ステート
-		enEnemyState_PathChase,
+		enEnemyState_PathChase,    //パス移動ステート
 		enEnemyState_Attack,       //攻撃ステート
 		enEnemyState_Down,         //ダウンステート
-		enEnemyState_DeActive,     //ディアクテブ
+		enEnemyState_DeActive,     //非活動ステート
 	};
-	float i = 0.0f;
-	void PathMove();
+	
+	void DeActive();
+
 	/// <summary>
-	/// アニメーションの初期化
+	/// アニメーションの初期化処理
 	/// </summary>
 	void InitAnimation();
 	/// <summary>
-	/// 回転処理
+	/// パス移動処理
 	/// </summary>
-	void Rotation();
-	void DeActive();
-	/// <summary>
-	/// 移動処理
-	/// </summary>
-	void Move();
+	void PathMove();
 	/// <summary>
 	/// 追跡処理
 	/// </summary>
 	void Chase();
 	/// <summary>
-	/// 当たり判定
+	/// 回転処理
+	/// </summary>
+	void Rotation();
+	/// <summary>
+	/// 当たり判定処理
 	/// </summary>
 	void Collision();
 	/// <summary>
@@ -84,11 +112,11 @@ private:
 	/// </summary>
 	void Attack();
 	/// <summary>
-	/// 攻撃のコリジョンを作成する
+	/// 攻撃用コリジョン生成処理
 	/// </summary>
 	void MakeAttackCollision();
 	/// <summary>
-	/// アニメーションの再生
+	/// アニメーションの再生処理
 	/// </summary>
 	void PlayAnimation();
 	/// <summary>
@@ -108,10 +136,6 @@ private:
 	/// </summary>
 	void ProcessChaseStateTransition();
 	/// <summary>
-	/// 走りステートの遷移処理
-	/// </summary>
-	void ProcessRunStateTransition();
-	/// <summary>
 	///	攻撃ステートの遷移処理
 	/// </summary>
 	void ProcessAttackStateTransition();
@@ -128,13 +152,13 @@ private:
 	/// <summary>
 	/// プレイヤーからみえていないか？
 	/// </summary>
-	/// <returns>trueなら見えた</returns>
+	/// <returns>trueなら見えている</returns>
 	void CantLookMe();
 	/// <summary>
 	/// 攻撃できるか？
 	/// </summary>
+	/// <returns>trueならできる</returns>
 	const bool CanAttack() const;
-	void MoveSound();
 	/// <summary>
 	//アニメーションクリップの番号を表す
 	/// </summary>
@@ -147,7 +171,9 @@ private:
 		enAnimClip_Num     //アニメーションの数
 	};
 
-	int n = 0;
+	Bullet* m_bullet = nullptr;                    //弾
+	Player* m_player = nullptr;                    //プレイヤー
+
 	ModelRender          m_modelRender;
 	Animation            m_animation;                           //アニメーション
 	AnimationClip        m_animClips[enAnimClip_Num];           //アニメーションクリップ
@@ -159,8 +185,6 @@ private:
 	EnEnemyState         m_enemyState = enEnemyState_Idle;      //エネミーステート
 	CharacterController  m_charaCon;                            //キャラコン
 	int                  m_hp = 3;                              //HP
-	Bullet*              m_bullet = nullptr;                    //弾
-	Player*              m_player = nullptr;                    //プレイヤー
 	bool                 m_mitukatta = false;                    //見つかったか
 	SphereCollider	     m_sphereCollider;                       //スヒアコライダー
 	bool                 m_attacking = false;                    //攻撃中か

@@ -1,16 +1,15 @@
 #pragma once
 
-//経路探索で使うやつ
 #include "tkFile/TknFile.h"
 #include "AI/PathFinding/NaviMesh.h"
 #include "AI/PathFinding/Path.h"
 #include "AI/PathFinding/PathFinding.h"
 
 //クラス宣言
-class Bullet;   //弾
-class Enemy;
-class Player;
-class SpawnEnemy;
+class Bullet;        //弾クラス
+class Enemy;         //エネミークラス
+class Player;        //プレイヤークラス
+class SpawnEnemy;    //エネミー出現クラス
 
 /// <summary>
 /// エネミークラス
@@ -44,9 +43,37 @@ public:
 	{
 		m_position = position;
 	}
+	/// <summary>
+	/// 大きさを設定
+	/// </summary>
+	/// <param name="scale">大きさ</param>
+	void SetScale(const Vector3& scale)
+	{
+		m_scale = scale;
+	}
+	/// <summary>
+	/// 回転を設定
+	/// </summary>
+	/// <param name="rotation">回転</param>
+	void SetRotation(const Quaternion& rotation)
+	{
+		m_rotation = rotation;
+	}
+	/// <summary>
+	/// マイナンバーを設定
+	/// </summary>
+	/// <param name="number">番号</param>
 	void SetMyNumber(const int& number)
 	{
 		m_myNumber = number;
+	}
+	/// <summary>
+	/// 活動フラグを設定
+	/// </summary>
+	/// <param name="flag">フラグ</param>
+	void SetActiveFlag(const bool& flag)
+	{
+		m_isActive = flag;
 	}
 	/// <summary>
 	/// 座標を取得
@@ -57,26 +84,39 @@ public:
 		return m_position;
 	}
 	/// <summary>
-	/// 回転を設定
+	/// 大きさを取得
 	/// </summary>
-	/// <param name="rotation">回転</param>
-	void SetRotation(const Quaternion& rotation)
+	/// <returns>大きさ</returns>
+	const Vector3& GetScale() const
 	{
-		m_rotation = rotation;
+		return m_scale;
 	}
-	const bool& GetActiveFlag() const
+	/// <summary>
+	/// 回転を取得
+	/// </summary>
+	/// <returns>回転</returns>
+	const Quaternion& GetRotation() const
 	{
-		return m_isActive;
+		return m_rotation;
 	}
-	void SetActiveFlag(const bool& flag)
-	{
-		m_isActive = flag;
-	}
+	/// <summary>
+	/// マイナンバーを取得
+	/// </summary>
+	/// <returns>番号</returns>
 	const int& GetMyNumber() const
 	{
 		return m_myNumber;
 	}
+	/// <summary>
+	/// 活動フラグを取得
+	/// </summary>
+	/// <returns>フラグ</returns>
+	const bool& GetActiveFlag() const
+	{
+		return m_isActive;
+	}
 
+private:
 	//アニメーションクリップの番号を表す
 	enum EnAnimationClip
 	{
@@ -120,14 +160,6 @@ public:
 	/// </summary>
 	void MakeAttackCollision();
 	/// <summary>
-	/// 死亡後の処理
-	/// </summary>
-	void DeathSpawn();
-	/// <summary>
-	/// 死亡後の処理
-	/// </summary>
-	void Spawn();
-	/// <summary>
 	/// アニメーションの再生
 	/// </summary>
 	void PlayAnimation();
@@ -165,45 +197,47 @@ public:
 	/// <param name="clipName">クリップ名</param>
 	/// <param name="eventName">イベント名</param>
 	void OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName);
+
 	/// <summary>
-	/// プレイヤーからみえていないか？
+	/// プレイヤーから見えているか？
 	/// </summary>
-	/// <returns>trueなら見えた</returns>
+	/// <returns>trueなら見えている</returns>
 	void CantLookMe();
 	/// <summary>
 	/// 攻撃できるか？
 	/// </summary>
+	/// <returns>trueならできる</returns>
 	const bool CanAttack() const;
 	
-	
-	int                  m_myNumber = 0;                        //マイナンバー
-	ModelRender          m_modelRender;                         //モデルレンダー
-	LevelRender          m_levelRender;                         //レベルレンダー
-	Vector3              m_position;                            //座標
-	Vector3              m_scale;                               //大きさ
-	Vector3              m_moveSpeed;                           //移動速度
-	Vector3              m_forward = Vector3::AxisZ;            //エネミーの前方向のベクトル
-	Quaternion           m_rotation;                            //回転
-	EnEnemyState         m_enemyState = enEnemyState_Idle;      //エネミーステート
-	Animation            m_animation;                           //アニメーション
-	AnimationClip        m_animClips[enAnimClip_Num];           //アニメーションクリップ
-	CharacterController  m_charaCon;                            //キャラコン
-	int                  m_hp = 6;                              //HP
-	Bullet*              m_bullet = nullptr;                    //弾
-	Player*              m_player = nullptr;                    //プレイヤー
-	bool                m_mitukatta = false;                    //見つかったか
-	SphereCollider	    m_sphereCollider;                       //スヒアコライダー
-	bool                ttt = false;                            //flag
-	bool                m_attacking = false;                    //攻撃中か
-	int				    m_pumchBoneId = -1;                     //パンチのボーン
-	bool                m_deadFlag = true;                      //死亡しているか
-	SpawnEnemy*  m_spawnEnemy = nullptr;
+	//クラス定義
+	SpawnEnemy*         m_spawnEnemy = nullptr;            //エネミーの出現
+	Bullet*             m_bullet = nullptr;                //弾
+	Player*             m_player = nullptr;                //プレイヤー
+	//ステータス
+	EnEnemyState        m_enemyState = enEnemyState_Idle;  //エネミーステート
+	int                 m_myNumber = 0;                    //マイナンバー
+	int                 m_hp = 6;                          //HP
+	//フラグ
+	bool                m_mitukatta = false;               //見つかっているか？
+	bool                m_attacking = false;               //攻撃中か
+	bool                m_deadFlag = true;                 //死亡しているか
+	//経路探索
+	TknFile             m_tknFile;                         //tkmファイル
+	nsAI::NaviMesh      m_nvmMesh;                         //ナビメッシュ
+	nsAI::Path          m_path;                            //パス
+ 	nsAI::PathFinding   m_pathFiding;                      //パス検索
+	float               m_pathTimer = 200.0f;              //パス検索タイマー
 
-	//経路探索で使うやつ
-	TknFile m_tknFile;
-	nsAI::NaviMesh m_nvmMesh;
-	nsAI::Path m_path;
-	nsAI::PathFinding m_pathFiding;
-	float m_pathTimer = 200.0f;
+	ModelRender         m_modelRender;                     //モデルレンダー
+	Vector3             m_position;                        //座標
+	Vector3             m_scale;                           //大きさ
+	Vector3             m_moveSpeed;                       //移動速度
+	Vector3             m_forward = Vector3::AxisZ;        //エネミーの前方向のベクトル
+	Quaternion          m_rotation;                        //回転
+	Animation           m_animation;                       //アニメーション
+	AnimationClip       m_animClips[enAnimClip_Num];       //アニメーションクリップ
+	CharacterController m_charaCon;                        //キャラコン
+	SphereCollider	    m_sphereCollider;                  //スヒアコライダー
+	int				    m_pumchBoneId = -1;                //パンチのボーン
 };
 
