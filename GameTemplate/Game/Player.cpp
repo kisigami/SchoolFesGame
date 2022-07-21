@@ -95,11 +95,6 @@ void Player::Update()
 	m_modelRender.Update();
 }
 
-void Player::Shot()
-{
-
-}
-
 void Player::EffectPlay()
 {
 	//攻撃エフェクトを発生させる。
@@ -282,6 +277,7 @@ void Player::ManageState()
 	case Player::enPlayerState_Shot:
 		ProcessShotStateTransition();
 		break;
+		//リロードステートの時
 	case Player::enPlayerState_Reload:
 		ProcessReloadStateTransition();
 		break;
@@ -298,23 +294,30 @@ void Player::ManageState()
 
 void Player::ProcessCommonStateTransition()
 {
-	//Aボタンが押されたら
+	//RB2ボタンが押されたら
 	if (g_pad[0]->IsPress(enButtonRB2))
 	{
+		//残弾が0だったら
 		if (m_bulletNum == 0)
 		{
+			//リロード音を再生する
 			ReloadSound();
+			//リロードステートに移行する
 			m_playerState = enPlayerState_Reload;
-			return;
 		}
-
-		//射撃ステートに移行する
-		m_playerState = enPlayerState_Shot;
+		else
+		{
+			//射撃ステートに移行する
+			m_playerState = enPlayerState_Shot;
+		}
 		return;
 	}
+	//Xボタンが押される＆残弾が最大ではなかったら
 	if (g_pad[0]->IsPress(enButtonX) && m_bulletNum < 30)
 	{
+		//リロード音を再生する
 		ReloadSound();
+		//リロードステートに移行する
 		m_playerState = enPlayerState_Reload;
 		return;
 	}
@@ -360,8 +363,9 @@ void Player::ProcessReloadStateTransition()
 {
 	if (m_modelRender.IsPlayingAnimation() == false)
 	{
-		//共通のステートの遷移処理
+		//残弾を最大にする
 		m_bulletNum = 30;
+		//共通のステートの遷移処理
 		ProcessCommonStateTransition();
 	}
 }

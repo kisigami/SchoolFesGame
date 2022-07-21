@@ -14,6 +14,11 @@ namespace
 	const float CHARACON_HEIGHT = 20.0f;             //キャラコンの高さ
 	const int   REACT_DAMAGE_VALUE = 1;              //受けるダメージの値
 	const float MOVE_SPEED = 125.0f;                 //移動速度
+	const float PATH_MOVE_SPEED = 5.0f;              //パス移動速度
+	const float AI_AGENT_RADIUS = 50.0f;             //AIエージェントの半径
+	const float AI_AGENT_HEIGHT = 200.0f;            //AIエージェントの高さ
+	const float PATH_SEARCH_TIME = 0.5f;             //パス検索時間
+	const float PATH_SEARCH_INIT_TIME = 0.0f;        //パス検索時間の初期化時間
 	const int   HP_DOWN_VALUE = 0;                   //死亡時のHPの値
 	const float MODEL_SCALE = 1.4f;                  //エネミーの大きさ
 	const float ATTACK_COLLISION_SIZE_X = 30.0f;     //攻撃の当たり判定のX軸大きさ
@@ -31,13 +36,13 @@ namespace
 	const int   PROBABILITY = 100;                   //確率の数
 	const int   ATTACK_PROBABILITY = 50;             //攻撃できる確率
 	const float ATTACK_DIFF = 48.0f;                 //攻撃できる距離
-	const float COLLIDER_RADIUS = 3.0f;              //スフィアコライダーの半径
-	const float COLLIDER_HEIGHT = 60.0f;             //コライダーの発射時の高
+	const float COLLIDER_RADIUS = 4.0f;              //スフィアコライダーの半径
+	const float COLLIDER_SHOT_HEIGHT = 60.0f;        //コライダーの発射時の高さ
 	const float LOOKME_ANGLE = 0.3f;                 //プレイヤーを見つける角度
-	const int   NEOWING_SE_NUMBER = 5;
-	const float NEOWING_SE_VOLUME = 0.3f;
-	const int   ATTACK_SE_NUMBER = 22;
-	const float ATTACK_SE_VOLUME = 0.4f;
+	const int   NEOWING_SE_NUMBER = 5;               //鳴き声の番号
+	const float NEOWING_SE_VOLUME = 0.3f;            //鳴き声の大きさ
+	const int   ATTACK_SE_NUMBER = 22;               //攻撃音の番号
+	const float ATTACK_SE_VOLUME = 0.4f;             //攻撃音の大きさ
 }
 
 SpeedEnemy::SpeedEnemy()
@@ -73,7 +78,7 @@ bool SpeedEnemy::Start()
 		OnAnimationEvent(clipName, eventName);
 	});
 	//スフィアコライダーを初期化。
-	m_sphereCollider.Create(4.0f);
+	m_sphereCollider.Create(COLLIDER_RADIUS);
 	//パンチのボーンを探す
 	m_pumchBoneId = m_modelRender.FindBoneID(L"mixamorig1:LeftHand");
 	//キャラコンを初期化
@@ -131,7 +136,9 @@ void SpeedEnemy::Update()
 		CantLookMe();
 	}
 
+	//キャラコンの座標を設定
 	m_charaCon.SetPosition(m_position);
+	//キャラコンの移動
 	m_charaCon.Execute(m_moveSpeed, g_gameTime->GetFrameDeltaTime());
 
 	//座標の設定
@@ -172,10 +179,9 @@ void SpeedEnemy::PathMove()
 	m_pathTimer += g_gameTime->GetFrameDeltaTime();
 	//目的地の座標
 	Vector3 nextPosition = Vector3::Zero;
-
 	bool isEnd;
 	//パス検索タイマーが越えたら
-	if (m_pathTimer >= 0.5f)
+	if (m_pathTimer >= PATH_SEARCH_TIME)
 	{
 		// パス検索
 		m_pathFiding.Execute(
@@ -184,17 +190,16 @@ void SpeedEnemy::PathMove()
 			m_position,						// 開始座標
 			m_player->GetPosition(),		// 移動目標座標
 			PhysicsWorld::GetInstance(),	// 物理エンジン	
-			50.0f,							// AIエージェントの半径
-			200.0f							// AIエージェントの高さ。
+			AI_AGENT_RADIUS,			    // AIエージェントの半径
+			AI_AGENT_HEIGHT				    // AIエージェントの高さ。
 		);
 		//パス検索タイマーを初期化する
-		m_pathTimer = 0.0f;
+		m_pathTimer = PATH_SEARCH_INIT_TIME;
 	}
-
 	//パス上を移動する。
 	nextPosition = m_path.Move(
 		m_position,                   //座標
-		5.0f,                         //移動速度
+		PATH_MOVE_SPEED,              //移動速度
 		isEnd                         //フラグをfalseにする
 	);
 
@@ -203,7 +208,7 @@ void SpeedEnemy::PathMove()
 	//正規化する
 	vector.Normalize();
 	//移動速度＝移動ベクトル×速度
-	m_moveSpeed = vector * 125.0f;
+	m_moveSpeed = vector * MOVE_SPEED;
 	//キャラコンの座標を設定する
 	m_charaCon.SetPosition(m_position);
 	//キャラコンを使って座標を移動させる
@@ -234,39 +239,37 @@ void SpeedEnemy::Collision()
 		return;
 	}
 
+	//敵の攻撃用のコリジョンの配列を取得する。
+	const auto& collisions = g_collisionObjectManager->FindCollisionObjects("bullet");
+	//配列をfor文で回す。
+	for (auto collision : collisions)
 	{
-		//敵の攻撃用のコリジョンの配列を取得する。
-		const auto& collisions = g_collisionObjectManager->FindCollisionObjects("bullet");
-		//配列をfor文で回す。
-		for (auto collision : collisions)
+		//コリジョンとキャラコンが衝突したら。
+		if (collision->IsHit(m_charaCon))
 		{
-			//コリジョンとキャラコンが衝突したら。
-			if (collision->IsHit(m_charaCon))
-			{
-				//プレイヤーを発見する
-				m_mitukatta = true;
-				//HPを減らす。
-				m_hp -= REACT_DAMAGE_VALUE;
+			//プレイヤーを発見する
+			m_mitukatta = true;
+			//HPを減らす。
+			m_hp -= REACT_DAMAGE_VALUE;
 
-				//コリジョンを非アクティブにする
-				collision->Dead();
-				collision->Deactivate();
-				//HPが0になったら。
-				if (m_hp <= HP_DOWN_VALUE)
-				{
-					//ダウンステートに移行する
-					m_enemyState = enEnemyState_Down;
-					//鳴き声を再生する
-					PlayNeowingSE();
-					//キャラコンを削除する
-					m_charaCon.RemoveRigidBoby();
-					//カウントを進める
-					int counter = m_player->GetKillEnemyCount();
-					counter += 1;
-					m_player->SetKillEnemyCount(counter);
-				}
-				return;
+			//コリジョンを非アクティブにする
+			collision->Dead();
+			collision->Deactivate();
+			//HPが0になったら。
+			if (m_hp <= HP_DOWN_VALUE)
+			{
+				//ダウンステートに移行する
+				m_enemyState = enEnemyState_Down;
+				//鳴き声を再生する
+				PlayNeowingSE();
+				//キャラコンを削除する
+				m_charaCon.RemoveRigidBoby();
+				//カウントを進める
+				int counter = m_player->GetKillEnemyCount();
+				counter += 1;
+				m_player->SetKillEnemyCount(counter);
 			}
+			return;
 		}
 	}
 }
@@ -479,9 +482,9 @@ void SpeedEnemy::CantLookMe()
 	start.setIdentity();
 	end.setIdentity();
 	//始点はエネミーの座標。
-	start.setOrigin(btVector3(m_position.x, m_position.y + COLLIDER_HEIGHT, m_position.z));
+	start.setOrigin(btVector3(m_position.x, m_position.y + COLLIDER_SHOT_HEIGHT, m_position.z));
 	//終点はプレイヤーの座標。
-	end.setOrigin(btVector3(playerPosition.x, playerPosition.y + COLLIDER_HEIGHT, playerPosition.z));
+	end.setOrigin(btVector3(playerPosition.x, playerPosition.y + COLLIDER_SHOT_HEIGHT, playerPosition.z));
 
 	SweepResultWall callback;
 	//コライダーを始点から終点まで動かして。
