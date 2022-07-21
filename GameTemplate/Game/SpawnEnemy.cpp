@@ -7,7 +7,7 @@
 
 namespace
 {
-	const float SPAWN_TIME = 5.0f;
+	const float SPAWN_TIME = 1.0f;
 	const float INIT_TIME = 0.0f;
 	const int SPAWN_ENEMY_NUM = 3;
 }
@@ -42,34 +42,24 @@ void SpawnEnemy::Update()
 		NewGoEnemy();
 		m_spawnTimer = INIT_TIME;
 	}
-
-	//あとでけす
-	wchar_t wcsbuf[256];
-	swprintf_s(wcsbuf, 256, L"%d", int());
-
-	//表示するテキストを設定。
-	m_fontRender.SetText(wcsbuf);
-	m_fontRender.SetPosition(Vector3::Zero);
-	m_fontRender.SetScale(2.3f);
-	m_fontRender.SetColor(Vector4(1.0f, 1.0f, 0.0f, 1.0f));
 }
 
 void SpawnEnemy::LoadPoint()
 {
 	LevelRender m_levelRender;
-	m_levelRender.Init("Assets/level3D/point.tkl", [&](LevelObjectData& objData)
+	m_levelRender.Init("Assets/level3D/point2.tkl", [&](LevelObjectData& objData)
 	{
-		if (objData.ForwardMatchName(L"Point") == true)
+		if (objData.ForwardMatchName(L"point") == true)
 		{
 			Point point;
 			int number = _wtoi(&objData.name[5]);
 			point.s_number = number;
 			point.s_position = objData.position;
-			m_pointMap[number - 1] = point;
+			m_pointMap[number] = point;
 			return true;
 		}
 
-		else if (objData.ForwardMatchName(L"StayPoint") == true)
+		else if (objData.ForwardMatchName(L"staypoint") == true)
 		{
 			m_stayPosition = objData.position;
 			for (int i = 1; i <= SPAWN_ENEMY_NUM; i++)
@@ -124,7 +114,6 @@ const int SpawnEnemy::MinNumber()const
 	const auto& speedEnemys = FindGOs<SpeedEnemy>("speedenemy");
 	for (auto speedenemy : speedEnemys)
 	{
-		
 		int j = m_countEnemy - 1;
 
 		for (int i = j; i >= 0; i--)
@@ -150,6 +139,5 @@ const int SpawnEnemy::MinNumber()const
 
 void SpawnEnemy::Render(RenderContext& rc)
 {
-	//m_fontRender.Draw(rc);
 }
 

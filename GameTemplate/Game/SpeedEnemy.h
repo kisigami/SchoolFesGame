@@ -134,7 +134,7 @@ private:
 	/// 攻撃できるか？
 	/// </summary>
 	const bool CanAttack() const;
-
+	void MoveSound();
 	/// <summary>
 	//アニメーションクリップの番号を表す
 	/// </summary>
@@ -165,11 +165,12 @@ private:
 	SphereCollider	     m_sphereCollider;                       //スヒアコライダー
 	bool                 m_attacking = false;                    //攻撃中か
 	int				     m_pumchBoneId = -1;                     //パンチのボーン
-
 	int                  m_myNumber = 0;                        //マイナンバー
 	bool                 m_isActive = false;
 	SpawnEnemy* m_spawnEnemy = nullptr;
 	SoundSource* m_se = nullptr;
+	SoundSource* m_walkse;
+	bool soundflag = false;
 	float          m_pathTimer = 1.0f;
 	TknFile m_tknFile;
 	nsAI::NaviMesh m_nvmMesh;

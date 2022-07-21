@@ -223,7 +223,7 @@ namespace nsK2EngineLow {
 		GamePad m_pad[GamePad::CONNECT_PAD_MAX];		// ゲームパッド。
 		GameTime m_gameTime;
 		FPSLimitter m_fpsLimitter;						// FPSに制限をかける処理。
-		FrameRateInfo m_frameRateInfo = { enFrameRateMode_Fix , 45};
+		FrameRateInfo m_frameRateInfo = { enFrameRateMode_Fix , 35};
 	};
 
 	extern K2EngineLow* g_engine;	// 低レベルK2エンジン。

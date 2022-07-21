@@ -13,7 +13,7 @@ namespace
 	const float ZERO = 0.0f;								    //0.0f
 	const float CHARACON_RADIUS = 25.0f;                        //キャラコンの半径
 	const float CHARACON_HEIGHT = 50.0f;                        //キャラコンの高さ
-	const float MOVE_SPEED = 170.0f;                            //移動速度
+	const float MOVE_SPEED = 200.0f;                            //移動速度
 	const float SHOT_MOVE_SPEED = 60.0f;                        //射撃ステートの移動速度
 	const float MOVE_SPEED_MINIMUMVALUE = 0.001f;               //移動速度の最低値
 	const float JUMP_POWER = 200.0f;                            //ジャンプ力
@@ -34,7 +34,7 @@ Player::Player()
 
 Player::~Player()
 {
-
+	DeleteGO(m_walkse);
 }
 
 void Player::InitAnimation()
@@ -52,7 +52,8 @@ void Player::InitAnimation()
 
 bool Player::Start()
 {
-	g_soundEngine->ResistWaveFileBank(4, "Assets/sound/player/playerrunsound.wav");
+	g_soundEngine->ResistWaveFileBank(10, "Assets/sound/player/walksound.wav");
+	g_soundEngine->ResistWaveFileBank(15, "Assets/sound/player/reload.wav");
 	//アニメーションの初期化
 	InitAnimation();
 	//カメラのインスタンスを取得
@@ -78,6 +79,8 @@ bool Player::Start()
 
 void Player::Update()
 {
+	ProcessReceiveDamageStateTransition();
+	MoveSound();
 	//回転処理
 	Rotation();
 	//移動処理
@@ -165,16 +168,19 @@ void Player::Move()
 		m_moveSpeed += cameraForward * lStick_y * MOVE_SPEED;
 		m_moveSpeed += cameraRight * lStick_x * MOVE_SPEED;
 	}
+
 	//重力
 	m_moveSpeed.y -= 500.0f * g_gameTime->GetFrameDeltaTime();
 	//キャラコンの座標をプレイヤーの座標に代入
 	m_position = m_charaCon.Execute( m_moveSpeed,g_gameTime->GetFrameDeltaTime());
-	m_position.y = 0.0f;
-
+	if (m_position.y < 1.0f)
+	{
+		m_position.y = 1.0f;
+	}
 	//モデルをカメラに合わせて動かす
 	m_modelRender.SetPosition(
 		m_gameCamera->GetCameraPosition().x,
-		48.0f,
+		m_gameCamera->GetCameraPosition().y - 4.0f,
 		m_gameCamera->GetCameraPosition().z
 	); 
 }
@@ -182,7 +188,7 @@ void Player::Move()
 void Player::Collision()
 {
 	//被ダメージステートかダウンステートだったら
-	if (m_playerState == enPlayerState_ReceiveDamage ||
+	if (muteki == true ||
 		m_playerState == enPlayerState_Down)
 	{
 		//何もしない
@@ -212,8 +218,7 @@ void Player::Collision()
 			//HPが0より大きかったら
 			else
 			{
-				//被ダメージステートに移行する
-				m_playerState = enPlayerState_ReceiveDamage;
+				muteki = true;
 			}
 			return;
 		}
@@ -231,6 +236,7 @@ void Player::MakeBullet()
 	//座標を設定する
 	bullet->SetPosition(position);
 	bullet->SetRotation(m_rotation);
+	m_bulletNum--;
 }
 
 void Player::PlayAnimation()
@@ -293,15 +299,22 @@ void Player::ManageState()
 void Player::ProcessCommonStateTransition()
 {
 	//Aボタンが押されたら
-	if (g_pad[0]->IsPress(enButtonA))
+	if (g_pad[0]->IsPress(enButtonRB2))
 	{
+		if (m_bulletNum == 0)
+		{
+			ReloadSound();
+			m_playerState = enPlayerState_Reload;
+			return;
+		}
+
 		//射撃ステートに移行する
 		m_playerState = enPlayerState_Shot;
 		return;
 	}
-	if (g_pad[0]->IsPress(enButtonB))
+	if (g_pad[0]->IsPress(enButtonX) && m_bulletNum < 30)
 	{
-		//射撃ステートに移行する
+		ReloadSound();
 		m_playerState = enPlayerState_Reload;
 		return;
 	}
@@ -348,21 +361,24 @@ void Player::ProcessReloadStateTransition()
 	if (m_modelRender.IsPlayingAnimation() == false)
 	{
 		//共通のステートの遷移処理
+		m_bulletNum = 30;
 		ProcessCommonStateTransition();
 	}
 }
 
 void Player::ProcessReceiveDamageStateTransition()
 {
-	//無敵タイマーを減少させる
-	m_receiveDamageTimer -= g_gameTime->GetFrameDeltaTime();
-	//無敵タイマーが0.0f以下だったら
-	if (m_receiveDamageTimer <= 0.0f)
+	if (muteki == true)
 	{
-		//共通のステートの遷移処理
-		ProcessCommonStateTransition();
-		//無敵タイマーをリセットする
-		m_receiveDamageTimer = 1.0f;
+		//無敵タイマーを減少させる
+		m_receiveDamageTimer -= g_gameTime->GetFrameDeltaTime();
+		//無敵タイマーが0.0f以下だったら
+		if (m_receiveDamageTimer <= 0.0f)
+		{
+			muteki = false;
+			//無敵タイマーをリセットする
+			m_receiveDamageTimer = 1.0f;
+		}
 	}
 }
 
@@ -370,6 +386,47 @@ void Player::ProcessDownStateTransition()
 {
 	//共通のステートの遷移処理
 	ProcessCommonStateTransition();
+}
+
+void Player::MoveSound()
+{
+	//seが再生中だったら
+	if (soundflag == true)
+	{
+		//移動速度が
+		if (fabsf(m_moveSpeed.x) < 0.001f &&
+			fabsf(m_moveSpeed.z) < 0.001f)
+		{
+			m_walkse->Stop();
+			soundflag = false;
+		}
+	}
+
+	if (soundflag == false) 
+	{
+		if (fabsf(m_moveSpeed.x) > 0.001f &&
+			fabsf(m_moveSpeed.z) > 0.001f)
+		{
+			m_walkse = NewGO<SoundSource>(0);
+			m_walkse->Init(10);
+			m_walkse->SetVolume(0.7f);
+			m_walkse->Play(true);
+			soundflag = true;
+		}
+	}
+}
+
+void Player::ReloadSound()
+{
+	SoundSource* se;
+	se = NewGO<SoundSource>(0);
+	se->Init(15);
+	se->SetVolume(0.5f);
+	se->Play(false);
+	if (m_hp <= 0)
+	{
+		se->Stop();
+	}
 }
 
 void Player::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName)

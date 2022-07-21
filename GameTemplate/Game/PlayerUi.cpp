@@ -67,7 +67,10 @@ void PlayerUi::Render(RenderContext& rc)
 {
 	//‰æ‘œ‚Ì•`‰æ‚·‚é
 	m_hpBarBottomRender.Draw(rc);
-	m_hpBarRender.Draw(rc);
+	if (m_player->GetHP() > 0)
+	{
+		m_hpBarRender.Draw(rc);
+	}
 	m_hpBarFrameRender.Draw(rc);
 	m_hpFontRender.Draw(rc);
 	m_targetRender.Draw(rc);

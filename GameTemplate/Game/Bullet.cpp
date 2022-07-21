@@ -39,7 +39,7 @@ bool Bullet::Start()
 	m_player = FindGO<Player>("player");
 
 	//SE‚ð“Ç‚Ýž‚ñ‚Å“o˜^‚·‚é
-	g_soundEngine->ResistWaveFileBank(SHOT_SE_NUMBER, "Assets/sound/shot2.wav");
+	g_soundEngine->ResistWaveFileBank(SHOT_SE_NUMBER, "Assets/sound/shot.wav");
 	//ƒGƒtƒFƒNƒg‚ð“Ç‚Ýž‚ñ‚Å“o˜^‚·‚é
 	EffectEngine::GetInstance()->ResistEffect(SMOKE_EFFECT_NUMBER, u"Assets/effect/efk/smoke.efk");
 

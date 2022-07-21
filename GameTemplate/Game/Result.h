@@ -18,7 +18,7 @@ public:
 		m_score = score;
 	}
 private:
-	int          m_score = 0;
+	int m_score = 0;
 	FontRender   m_fontRender;
 	SpriteRender m_resultBottomRender;
 	SpriteRender m_titleFontRender;
@@ -26,5 +26,9 @@ private:
 	Fade* m_fade = nullptr;
 	GameUi* m_gameUi = nullptr;
 	bool m_isWaitFadeout = false;
+	SoundSource* m_bgm = nullptr;
+	float m_alpha = 0.0f;
+	bool a = false;
+
 };
 

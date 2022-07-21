@@ -23,5 +23,7 @@ private:
 	SpriteRender m_titleFontRender;
 	SpriteRender m_startFontRender;
 	SpriteRender m_aFontRender;
+	SoundSource* bgm = nullptr;
+	bool a = false;
 };
 

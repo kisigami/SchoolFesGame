@@ -5,14 +5,17 @@
 #include "Bullet.h"
 #include "SpawnEnemy.h"
 
+#include "collision/CollisionObject.h"
+#include "graphics/effect/EffectEmitter.h"
+
 namespace
 {
-	const float CHARACON_RADIUS = 20.0f;             //キャラコンの半径
-	const float CHARACON_HEIGHT = 40.0f;             //キャラコンの高さ
+	const float CHARACON_RADIUS = 22.0f;             //キャラコンの半径
+	const float CHARACON_HEIGHT = 20.0f;             //キャラコンの高さ
 	const int   REACT_DAMAGE_VALUE = 1;              //受けるダメージの値
 	const float MOVE_SPEED = 125.0f;                 //移動速度
 	const int   HP_DOWN_VALUE = 0;                   //死亡時のHPの値
-	const float MODEL_SCALE = 1.2f;                  //エネミーの大きさ
+	const float MODEL_SCALE = 1.4f;                  //エネミーの大きさ
 	const float ATTACK_COLLISION_SIZE_X = 30.0f;     //攻撃の当たり判定のX軸大きさ
 	const float ATTACK_COLLISION_SIZE_Y = 30.0f;	 //攻撃の当たり判定のY軸大きさ
 	const float ATTACK_COLLISION_SIZE_Z = 30.0f;	 //攻撃の当たり判定のZ軸大きさ
@@ -28,8 +31,8 @@ namespace
 	const int   PROBABILITY = 100;                   //確率の数
 	const int   ATTACK_PROBABILITY = 50;             //攻撃できる確率
 	const float ATTACK_DIFF = 48.0f;                 //攻撃できる距離
-	const float COLLIDER_RADIUS = 1.0f;              //スフィアコライダーの半径
-	const float COLLIDER_HEIGHT = 50.0f;             //コライダーの発射時の高さ
+	const float COLLIDER_RADIUS = 3.0f;              //スフィアコライダーの半径
+	const float COLLIDER_HEIGHT = 60.0f;             //コライダーの発射時の高
 	const float LOOKME_ANGLE = 0.3f;                 //プレイヤーを見つける角度
 }
 
@@ -39,6 +42,7 @@ SpeedEnemy::SpeedEnemy()
 
 SpeedEnemy::~SpeedEnemy()
 {
+	DeleteGO(m_walkse);
 }
 
 void SpeedEnemy::InitAnimation()
@@ -58,6 +62,11 @@ void SpeedEnemy::InitAnimation()
 bool SpeedEnemy::Start()
 {
 	g_soundEngine->ResistWaveFileBank(5, "Assets/sound/enemy/enemydownsound.wav");
+	g_soundEngine->ResistWaveFileBank(11, "Assets/sound/enemy/walksound2.wav");
+	g_soundEngine->ResistWaveFileBank(22, "Assets/sound/enemy/pumch.wav");
+	//エフェクトを読み込んで登録する
+	EffectEngine::GetInstance()->ResistEffect(11, u"Assets/effect/efk/blood.efk");
+
 	//アニメーションの初期化
 	InitAnimation();
 	//モデルの読み込み
@@ -67,7 +76,7 @@ bool SpeedEnemy::Start()
 		OnAnimationEvent(clipName, eventName);
 	});
 	//スフィアコライダーを初期化。
-	m_sphereCollider.Create(1.0f);
+	m_sphereCollider.Create(4.0f);
 	//パンチのボーンを探す
 	m_pumchBoneId = m_modelRender.FindBoneID(L"mixamorig1:LeftHand");
 	//キャラコンを初期化
@@ -88,6 +97,7 @@ void SpeedEnemy::Update()
 {
 	if (m_isActive == true)
 	{
+		MoveSound();
 		PathMove();
 		//プレイヤーから見られいるか？
 		CantLookMe();
@@ -125,7 +135,7 @@ void SpeedEnemy::PathMove()
 
 	Vector3 nextPosition = Vector3::Zero;
 	bool isEnd;
-	if (m_pathTimer >= 1.0f)
+	if (m_pathTimer >= 0.5f)
 	{
 		// パス検索
 		m_pathFiding.Execute(
@@ -169,6 +179,7 @@ void SpeedEnemy::DeActive()
 		m_charaCon.Init(CHARACON_RADIUS, CHARACON_HEIGHT, m_position);
 		//HPを元に戻す
 		m_hp = 3;
+		m_pathTimer = 1.0f;
 	}
 }
 
@@ -221,6 +232,7 @@ void SpeedEnemy::Attack()
 	//攻撃中なら
 	if (m_attacking == true)
 	{
+
 		//攻撃の当たり判定を作成する
 		MakeAttackCollision();
 	}
@@ -260,8 +272,10 @@ void SpeedEnemy::Collision()
 			//コリジョンとキャラコンが衝突したら。
 			if (collision->IsHit(m_charaCon))
 			{
+				m_mitukatta = true;
 				//HPを減らす。
 				m_hp -= REACT_DAMAGE_VALUE;
+
 				//コリジョンを非アクティブにする
 				collision->Dead();
 				collision->Deactivate();
@@ -270,6 +284,18 @@ void SpeedEnemy::Collision()
 				{
 					//ダウンステートに移行する
 					m_enemyState = enEnemyState_Down;
+
+					//銃声SEを作成する
+					m_se = NewGO<SoundSource>(0);
+					//銃声SEを初期化する
+					m_se->Init(5);
+					//銃声SEの大きさを設定
+					m_se->SetVolume(0.2f);
+					m_se->SetPosition(m_position);
+					//銃声SEを再生する（ループなし）
+					m_se->Play(false);
+
+
 					m_charaCon.RemoveRigidBoby();
 
 					//カウントを進める
@@ -490,6 +516,11 @@ void SpeedEnemy::CantLookMe()
 	m_mitukatta = true;
 }
 
+void SpeedEnemy::MoveSound()
+{
+
+}
+
 const bool SpeedEnemy::CanAttack() const
 {
 	//プレイヤーを見つけたなら
@@ -515,6 +546,11 @@ void SpeedEnemy::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventN
 	if (wcscmp(eventName, L"attack_start") == 0)
 	{
 		//攻撃中
+		SoundSource* se;
+		se = NewGO<SoundSource>(0);
+		se->Init(22);
+		se->SetVolume(0.4f);
+		se->Play(false);
 		m_attacking = true;
 	}
 	//キーの名前が「attack_end」なら
@@ -523,23 +559,7 @@ void SpeedEnemy::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventN
 		//攻撃中じゃない
 		m_attacking = false;
 	}
-	if (wcscmp(eventName, L"run_start") == 0)
-	{
-		////銃声SEを作成する
-		//m_se = NewGO<SoundSource>(0);
-		////銃声SEを初期化する
-		//m_se->Init(SHOT_SE_NUMBER);
-		////銃声SEを再生する（ループなし）
-		//m_se->Play(false);
-		////銃声SEの大きさを設定
-		//m_se->SetVolume(SHOT_SE_SCALE);
-	}
-	//キーの名前が「attack_end」なら
-	else if (wcscmp(eventName, L"run_end") == 0)
-	{
-		//攻撃中じゃない
-		m_attacking = false;
-	}
+
 }
 
 void SpeedEnemy::Render(RenderContext& rc)

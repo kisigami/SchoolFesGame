@@ -74,7 +74,10 @@ public:
 	{
 		m_killEnemyCount = num;
 	}
-
+	const int& GetBulletNum()const
+	{
+		return m_bulletNum;
+	}
 private:
 	/// <summary>
 	/// プレイヤーステート
@@ -88,6 +91,7 @@ private:
 		enPlayerState_ReceiveDamage,   //被ダメージステート
 		enPlayerState_Down,            //ダウンステート
 	};
+	void ReloadSound();
 	/// <summary>
 	/// アニメーション初期化
 	/// </summary>
@@ -100,6 +104,7 @@ private:
 	/// 移動処理
 	/// </summary>
 	void Move();
+	void MoveSound();
 	/// <summary>
 	/// 攻撃の当たり判定処理
 	/// </summary>
@@ -180,9 +185,13 @@ private:
 	Vector3              m_moveSpeed;                            //移動速度
 	Vector3              m_forward = Vector3::AxisZ;             //プレイヤーの前ベクトル
 	Quaternion           m_rotation;                             //回転
+	int                  m_bulletNum = 30;
 	int                  m_hp = 100;                             //ヒットポイント
 	float                m_receiveDamageTimer = 1.0f;            //無敵タイマー
 	int                  m_killEnemyCount = 0;
 	SoundSource*         m_se = nullptr;
+	SoundSource* m_walkse;
+	bool soundflag = false;
+	bool muteki = false;
 };
 

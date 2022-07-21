@@ -20,7 +20,7 @@
 namespace
 {
 	const int   BGM_NUMBER = 0;      //BGMの番号
-	const float BGM_VOLUME = 0.2f;   //BGMのサウンドボリューム
+	const float BGM_VOLUME = 0.1f;   //BGMのサウンドボリューム
 
 }
 Game::Game()
@@ -45,14 +45,14 @@ Game::~Game()
 
 bool Game::Start()
 {
-	m_fpsLimitter.SetMaxFPS(45);
+	m_fpsLimitter.SetMaxFPS(35);
 	//スカイキューブとか環境光とかいろいろ
 	DeleteGO(m_skyCube);
 	m_skyCube = NewGO<SkyCube>(0, "skycube");
 	m_skyCube->SetType((EnSkyCubeType)enSkyCubeType_Day);
 	m_skyCube->SetLuminance(0.8f);
 	g_renderingEngine->SetCascadeNearAreaRates(0.01f, 0.1f, 0.5f);
-	g_renderingEngine->SetAmbient(Vector3::One*0.5f);
+	g_renderingEngine->SetAmbient(Vector3::One * 0.5f);
 
 
 	//ゲームカメラを作成する
@@ -63,15 +63,15 @@ bool Game::Start()
 	m_player = FindGO<Player>("player");
 
 	//プレイヤーのUIを作成する
-	m_playerUi = NewGO<PlayerUi>(0,"playerui");
+	m_playerUi = NewGO<PlayerUi>(0, "playerui");
 	m_gameUi = NewGO<GameUi>(0, "gameui");
 	m_result = FindGO<Result>("result");
 
-	m_spawnEnemy = NewGO<SpawnEnemy>(0,"spawnenemy");
+	m_spawnEnemy = NewGO<SpawnEnemy>(0, "spawnenemy");
 	//BGMを読み込む
 	g_soundEngine->ResistWaveFileBank(BGM_NUMBER, "Assets/sound/bgm.wav");
 
-	m_backGround = NewGO<BackGround>(0, "background");		
+	m_backGround = NewGO<BackGround>(0, "background");
 
 	//フェードのインスタンスを探す
 	m_fade = FindGO<Fade>("fade");
@@ -79,19 +79,25 @@ bool Game::Start()
 	m_fade->StartFadeIn();
 
 	//BGMを作成する
-	//m_bgm = NewGO<SoundSource>(0);
+	m_bgm = NewGO<SoundSource>(0);
 	//BGMを初期化する
-	//m_bgm->Init(BGM_NUMBER);
+	m_bgm->Init(BGM_NUMBER);
 	//BGMを再生する（ループする）
-	//m_bgm->Play(true);
+	m_bgm->Play(true);
 	//BGMの大きさを設定する
-	//m_bgm->SetVolume(BGM_VOLUME);
+	m_bgm->SetVolume(BGM_VOLUME);
+
 	return true;
 }
 
 void Game::Update()
 {
 	GameTime();
+
+	if (m_player->GetHP() <= 0)
+	{
+		NotifyGameEnd();
+	}
 
 	if (m_gameState == enGameState_End)
 	{

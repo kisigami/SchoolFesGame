@@ -21,9 +21,11 @@ private:
 	Player* m_player = nullptr;
 	FontRender m_fontRender;
 	FontRender m_fontRender2;
+	FontRender m_fontRender3;
 	SpriteRender m_timeFontRender;
 	SpriteRender m_timeButtonRender;
 	SpriteRender m_scoreFontRender;
 	SpriteRender m_scoreBottomRender;
+	SpriteRender m_bulletNumRender;
 };
 
