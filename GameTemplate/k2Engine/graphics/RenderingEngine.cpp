@@ -195,6 +195,10 @@ namespace nsK2Engine {
         );
 
     }
+    void RenderingEngine::SetAmbientByIBLTexture(const wchar_t* textureFilePath, float luminance)
+    {
+        ReInitIBL(textureFilePath, luminance);
+    }
     void RenderingEngine::InitCopyMainRenderTargetToFrameBufferSprite()
     {
         SpriteInitData spriteInitData;

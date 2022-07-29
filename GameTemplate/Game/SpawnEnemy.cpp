@@ -9,7 +9,7 @@ namespace
 {
 	const float SPAWN_TIME = 1.0f;
 	const float INIT_TIME = 0.0f;
-	const int SPAWN_ENEMY_NUM = 3;
+	const int   SPAWN_ENEMY_NUM = 3;
 }
 
 SpawnEnemy::SpawnEnemy()
@@ -29,6 +29,7 @@ bool SpawnEnemy::Start()
 {
 	//É|ÉCÉìÉgÇÃì«Ç›çûÇ›
 	LoadPoint();
+
 	m_speedEnemy = FindGO<SpeedEnemy>("speedenemy");
 	return true;
 }

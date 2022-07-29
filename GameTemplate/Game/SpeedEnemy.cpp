@@ -71,6 +71,9 @@ bool SpeedEnemy::Start()
 {
 	//アニメーションの初期化
 	InitAnimation();
+	g_soundEngine->ResistWaveFileBank(5, "Assets/sound/enemy/enemydownsound.wav");
+	g_soundEngine->ResistWaveFileBank(11, "Assets/sound/enemy/walksound2.wav");
+	g_soundEngine->ResistWaveFileBank(22, "Assets/sound/enemy/pumch.wav");
 	//モデルの読み込み
 	m_modelRender.Init("Assets/modelData/speedenemy/speedenemy.tkm", m_animClips, enAnimClip_Num);
 	//アニメーションイベント用の関数を設定する。
@@ -133,7 +136,7 @@ void SpeedEnemy::Update()
 		//各ステートの遷移処理
 		ManageState();
 		//プレイヤーが見えているか？
-		CantLookMe();
+		//CantLookMe();
 	}
 
 	//キャラコンの座標を設定
@@ -438,69 +441,69 @@ void SpeedEnemy::ProcessDownStateTransition()
 	}
 }
 
-//衝突したときに呼ばれる関数オブジェクト(壁用)
-struct SweepResultWall :public btCollisionWorld::ConvexResultCallback
-{
-	bool isHit = false;						//衝突フラグ。
-
-	virtual	btScalar	addSingleResult(btCollisionWorld::LocalConvexResult& convexResult, bool normalInWorldSpace)
-	{
-		//壁とぶつかってなかったら。
-		if (convexResult.m_hitCollisionObject->getUserIndex() != enCollisionAttr_Wall) {
-			//衝突したのは壁ではない。
-			return 0.0f;
-		}
-		
-		//壁とぶつかったら。
-		//フラグをtrueに。
-		isHit = true;
-		return 0.0f;
-	}
-};
-
-void SpeedEnemy::CantLookMe()
-{
-	m_mitukatta = false;
-
-	Vector3 playerPosition = m_player->GetPosition();
-	Vector3 diff = playerPosition - m_position;
-
-	m_forward = Vector3::AxisZ;
-	m_rotation.Apply(m_forward);
-
-	diff.Normalize();
-	float angle = acosf(diff.Dot(m_forward));
-
-	//プレイヤーが視界内に居なかったら。
-	if (Math::PI * LOOKME_ANGLE <= fabsf(angle))
-	{
-		//プレイヤーは見つかっていない。
-		return;
-	}
-
-	btTransform start, end;
-	start.setIdentity();
-	end.setIdentity();
-	//始点はエネミーの座標。
-	start.setOrigin(btVector3(m_position.x, m_position.y + COLLIDER_SHOT_HEIGHT, m_position.z));
-	//終点はプレイヤーの座標。
-	end.setOrigin(btVector3(playerPosition.x, playerPosition.y + COLLIDER_SHOT_HEIGHT, playerPosition.z));
-
-	SweepResultWall callback;
-	//コライダーを始点から終点まで動かして。
-	//衝突するかどうかを調べる。
-	PhysicsWorld::GetInstance()->ConvexSweepTest((const btConvexShape*)m_sphereCollider.GetBody(), start, end, callback);
-	//壁と衝突した！
-	if (callback.isHit == true)
-	{
-		//プレイヤーは見つかっていない。
-		return;
-	}
-
-	//壁と衝突してない！！
-	//プレイヤー見つけたフラグをtrueに。
-	m_mitukatta = true;
-}
+////衝突したときに呼ばれる関数オブジェクト(壁用)
+//struct SweepResultWall :public btCollisionWorld::ConvexResultCallback
+//{
+//	bool isHit = false;						//衝突フラグ。
+//
+//	virtual	btScalar	addSingleResult(btCollisionWorld::LocalConvexResult& convexResult, bool normalInWorldSpace)
+//	{
+//		//壁とぶつかってなかったら。
+//		if (convexResult.m_hitCollisionObject->getUserIndex() != enCollisionAttr_Wall) {
+//			//衝突したのは壁ではない。
+//			return 0.0f;
+//		}
+//		
+//		//壁とぶつかったら。
+//		//フラグをtrueに。
+//		isHit = true;
+//		return 0.0f;
+//	}
+//};
+//
+//void Enemy::CantLookMe()
+//{
+//	m_mitukatta = false;
+//
+//	Vector3 playerPosition = m_player->GetPosition();
+//	Vector3 diff = playerPosition - m_position;
+//
+//	m_forward = Vector3::AxisZ;
+//	m_rotation.Apply(m_forward);
+//
+//	diff.Normalize();
+//	float angle = acosf(diff.Dot(m_forward));
+//
+//	//プレイヤーが視界内に居なかったら。
+//	if (Math::PI * LOOKME_ANGLE <= fabsf(angle))
+//	{
+//		//プレイヤーは見つかっていない。
+//		return;
+//	}
+//
+//	btTransform start, end;
+//	start.setIdentity();
+//	end.setIdentity();
+//	//始点はエネミーの座標。
+//	start.setOrigin(btVector3(m_position.x, m_position.y + COLLIDER_SHOT_HEIGHT, m_position.z));
+//	//終点はプレイヤーの座標。
+//	end.setOrigin(btVector3(playerPosition.x, playerPosition.y + COLLIDER_SHOT_HEIGHT, playerPosition.z));
+//
+//	SweepResultWall callback;
+//	//コライダーを始点から終点まで動かして。
+//	//衝突するかどうかを調べる。
+//	PhysicsWorld::GetInstance()->ConvexSweepTest((const btConvexShape*)m_sphereCollider.GetBody(), start, end, callback);
+//	//壁と衝突した！
+//	if (callback.isHit == true)
+//	{
+//		//プレイヤーは見つかっていない。
+//		return;
+//	}
+//
+//	//壁と衝突してない！！
+//	//プレイヤー見つけたフラグをtrueに。
+//	m_mitukatta = true;
+//}
 
 const bool SpeedEnemy::CanAttack() const
 {

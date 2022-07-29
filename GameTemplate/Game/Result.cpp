@@ -6,7 +6,8 @@
 #include "GameUi.h"
 
 Result::Result()
-{}
+{
+}
 
 Result::~Result()
 {

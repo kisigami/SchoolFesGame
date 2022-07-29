@@ -74,10 +74,6 @@ namespace nsK2EngineLow {
 		{
 			m_sourceVoice->SetVolume(vol);
 		}
-		void SetSPeed(float speed)
-		{
-			
-		}
 		/// <summary>
 		/// ƒ{ƒŠƒ…[ƒ€‚ğæ“¾B
 		/// </summary>

@@ -81,7 +81,6 @@ namespace nsK2EngineLow {
 		static const Vector3 AxisX;
 		static const Vector3 AxisY;
 		static const Vector3 AxisZ;
-		static const Vector3 AxisXY;
 		static const Vector3 One;
 	public:
 		/// <summary>
@@ -786,7 +785,6 @@ namespace nsK2EngineLow {
 			y = axis.y * s;
 			z = axis.z * s;
 		}
-
 		/// <summary>
 		/// 任意の軸周りの回転クォータニオンを作成。
 		/// </summary>

@@ -1,6 +1,6 @@
 #pragma once
 
-class Enemy;
+class SpeedEnemy;
 class SpeedEnemy;
 
 struct Point
@@ -30,7 +30,7 @@ private:
 
 	const int MinNumber()const;
 
-	Enemy*                     m_enemy = nullptr;
+	SpeedEnemy*                     m_enemy = nullptr;
 	SpeedEnemy*                m_speedEnemy = nullptr;
 	const Point*               m_point = nullptr;
 	std::map<const int, Point> m_pointMap;

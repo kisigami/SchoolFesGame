@@ -74,6 +74,6 @@ void Title::Update()
 void Title::Render(RenderContext& rc)
 {
 	m_titleBottomRender.Draw(rc);
-	m_titleFontRender.Draw(rc);
+	//m_titleFontRender.Draw(rc);
 	m_startFontRender.Draw(rc);
 }

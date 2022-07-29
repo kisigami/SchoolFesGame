@@ -8,12 +8,10 @@ class BackGround;    //背景クラス
 class GameCamera;    //ゲームカメラクラス
 class Fade;          //フェードクラス
 class PlayerUi;      //プレイヤー関連のUIクラス
-class Enemy;         //エネミークラス
 class SpeedEnemy;    //スピードエネミークラス
 class SpawnEnemy;
 class GameUi;
 class Result;
-class EffectSound;
 
 /// <summary>
 /// ゲームクラス
@@ -46,13 +44,11 @@ private:
 	GameCamera*  m_gameCamera = nullptr;   //ゲームカメラ
 	Fade*        m_fade = nullptr;         //フェード
 	PlayerUi*    m_playerUi = nullptr;     //プレイヤー関連のUI
-	Enemy*       m_enemy = nullptr;        //エネミー
 	SpeedEnemy*  m_speedEnemy = nullptr;   //スピードエネミー
 	SkyCube*     m_skyCube = nullptr;
 	SpawnEnemy*  m_spawnEnemy = nullptr;
 	GameUi* m_gameUi = nullptr;
 	Result* m_result = nullptr;
-	EffectSound* m_effectsound = nullptr;
 
 	LevelRender  m_levelRender;            //レベルレンダー
 	FPSLimitter m_fpsLimitter;

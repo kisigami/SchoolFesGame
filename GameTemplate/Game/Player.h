@@ -2,7 +2,6 @@
 
 //クラス宣言
 class GameCamera;  //ゲームカメラクラス
-class Enemy;       //エネミークラス
 
 /// <summary>
 /// プレイヤークラス
@@ -64,16 +63,26 @@ public:
 	{
 		return m_forward;
 	}
-
+	/// <summary>
+	/// 倒した敵の数を取得
+	/// </summary>
+	/// <returns></returns>
 	const int& GetKillEnemyCount()const
 	{
 		return m_killEnemyCount;
 	}
-
+	/// <summary>
+	/// 倒した敵の数を設定
+	/// </summary>
+	/// <param name="num">倒した敵の数</param>
 	void SetKillEnemyCount(const int& num)
 	{
 		m_killEnemyCount = num;
 	}
+	/// <summary>
+	/// 弾の数を取得
+	/// </summary>
+	/// <returns>弾の数</returns>
 	const int& GetBulletNum()const
 	{
 		return m_bulletNum;
@@ -87,11 +96,13 @@ private:
 		enPlayerState_Idle,            //待機ステート
 		enPlayerState_Run,             //走りステート
 		enPlayerState_Shot,            //射撃ステート
-		enPlayerState_Reload,
-		enPlayerState_ReceiveDamage,   //被ダメージステート
+		enPlayerState_Reload,          //リロードステート
 		enPlayerState_Down,            //ダウンステート
 	};
+
 	void ReloadSound();
+	void MoveSound();
+
 	/// <summary>
 	/// アニメーション初期化
 	/// </summary>
@@ -104,15 +115,14 @@ private:
 	/// 移動処理
 	/// </summary>
 	void Move();
-	void MoveSound();
+	/// <summary>
+	/// 無敵時間の処理
+	/// </summary>
+	void Invincibility();
 	/// <summary>
 	/// 攻撃の当たり判定処理
 	/// </summary>
 	void Collision();
-	/// <summary>
-	/// 射撃処理
-	/// </summary>
-	void Shot();
 	/// <summary>
 	/// 弾作成処理
 	/// </summary>
@@ -143,10 +153,6 @@ private:
 	void ProcessShotStateTransition();
 	void ProcessReloadStateTransition();
 	/// <summary>
-	/// 被ダメージステートの遷移処理
-	/// </summary>
-	void ProcessReceiveDamageStateTransition();
-	/// <summary>
 	/// ダウンステートの遷移処理
 	/// </summary>
 	void ProcessDownStateTransition();
@@ -172,7 +178,6 @@ private:
 
 	//クラス定義
 	GameCamera*          m_gameCamera = nullptr;                 //ゲームカメラ
-	Enemy*               m_enemy = nullptr;                      //エネミー
 
 	FontRender           m_fontRender;                           //フォントレンダー
 	EnPlayerState        m_playerState = enPlayerState_Idle;     //プレイヤーステート
@@ -190,8 +195,8 @@ private:
 	float                m_receiveDamageTimer = 1.0f;            //無敵タイマー
 	int                  m_killEnemyCount = 0;
 	SoundSource*         m_se = nullptr;
-	SoundSource* m_walkse;
-	bool soundflag = false;
-	bool muteki = false;
+	SoundSource*         m_walkse;
+	bool                 m_soundFlag = false;
+	bool                 m_invincibilityFlag = false;
 };
 

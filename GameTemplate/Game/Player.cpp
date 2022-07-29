@@ -3,7 +3,6 @@
 
 #include "GameCamera.h"
 #include "Bullet.h"
-#include "Enemy.h"
 #include "graphics/effect/EffectEmitter.h"
 #include <math.h>
 
@@ -24,7 +23,12 @@ namespace
 	const float RUN_ANIMATION_INTERPOLATE = 0.1f;               //走りアニメーションの補完時間
 	const float SHOT_ANIMATION_SPEED = 2.0f;                    //射撃アニメーションの再生時間
 	const float SHOT_ANIMATION_INTERPOLATE = 0.1f;              //射撃アニメーションの補完時間
-	const Vector3 tocamerapos = { 0.0f,0.0f,-1000.0f };
+	const float INVICNIBILITY_TIME = 1.0f;                      //無敵時間
+	const float INVICNIBILITY_MIN_TIME = 0.0f;                  //無敵時間の最低値
+	const int   RECEIVE_DAMAGE_VALUE = 20;                      //被ダメージの値
+	const int   HP_LOWEST_VALUE = 0;                            //HPの最低値
+	const float SMOKE_EFFECT_FORWARD = 20.0f;
+	const float SMOKE_EFFECT_Y_POSITION = 40.0f;
 }
 
 Player::Player()
@@ -46,7 +50,7 @@ void Player::InitAnimation()
 	m_animClips[enAnimClip_Run].SetLoopFlag(true);
 	m_animClips[enAnimClip_Shot].Load("Assets/animData/ar/shot.tka");
 	m_animClips[enAnimClip_Shot].SetLoopFlag(false);
-	m_animClips[enAnimClip_Reload].Load("Assets/animData/ar/reload.tka");
+	m_animClips[enAnimClip_Reload].Load("Assets/animData/ar/reload2.tka");
 	m_animClips[enAnimClip_Reload].SetLoopFlag(false);
 }
 
@@ -54,11 +58,11 @@ bool Player::Start()
 {
 	g_soundEngine->ResistWaveFileBank(10, "Assets/sound/player/walksound.wav");
 	g_soundEngine->ResistWaveFileBank(15, "Assets/sound/player/reload.wav");
+
 	//アニメーションの初期化
 	InitAnimation();
 	//カメラのインスタンスを取得
 	m_gameCamera = FindGO<GameCamera>("gamecamera");
-	m_enemy = FindGO<Enemy>("enemy");
 	//モデルの読み込み
 	m_modelRender.Init("Assets/modelData/gun/ar/ar3.tkm",m_animClips,enAnimClip_Num);
 	//座標に原点を代入する
@@ -68,7 +72,7 @@ bool Player::Start()
 		OnAnimationEvent(clipName, eventName);
 	});
 	//座標の設定
-	m_modelRender.SetPosition(m_position.x, m_position.y, m_position.z);
+	m_modelRender.SetPosition(m_position);
 	//キャラコンを初期化
 	m_charaCon.Init(CHARACON_RADIUS, CHARACON_HEIGHT, m_position);
 	//モデルの更新
@@ -79,7 +83,7 @@ bool Player::Start()
 
 void Player::Update()
 {
-	ProcessReceiveDamageStateTransition();
+	//足音処理
 	MoveSound();
 	//回転処理
 	Rotation();
@@ -90,7 +94,6 @@ void Player::Update()
 	ManageState();
 	//アニメーションの再生
 	PlayAnimation();
-
 	//モデルの更新
 	m_modelRender.Update();
 }
@@ -103,8 +106,8 @@ void Player::EffectPlay()
 	effectEmitter->SetScale(Vector3::One * 1.5f);
 	Vector3 effectPosition = m_position;
 	//座標を少し上にする。
-	effectPosition = m_forward * 20.0f;
-	effectPosition.y += 40.0f;
+	effectPosition = m_forward * SMOKE_EFFECT_FORWARD;
+	effectPosition.y += SMOKE_EFFECT_Y_POSITION;
 	effectEmitter->SetPosition(effectPosition);
 	//エフェクトを再生する。
 	effectEmitter->Play();
@@ -147,7 +150,7 @@ void Player::Move()
 	//XZ平面での前方方向、右方向に変換する
 	cameraForward.y = ZERO;
 	cameraForward.Normalize();
-	cameraRight.y = ZERO;
+	cameraRight.y =  ZERO;
 	cameraRight.Normalize();
 	//射撃ステートだったら
 	if (m_playerState == enPlayerState_Shot)
@@ -173,17 +176,31 @@ void Player::Move()
 		m_position.y = 1.0f;
 	}
 	//モデルをカメラに合わせて動かす
-	m_modelRender.SetPosition(
-		m_gameCamera->GetCameraPosition().x,
-		m_gameCamera->GetCameraPosition().y - 4.0f,
-		m_gameCamera->GetCameraPosition().z
-	); 
+	Vector3 a = m_gameCamera->GetCameraPosition();
+	a.y -= 4.0f;
+	m_modelRender.SetPosition(a); 
+}
+
+void Player::Invincibility()
+{
+	if (m_invincibilityFlag == true)
+	{
+		//無敵タイマーを減少させる
+		m_receiveDamageTimer -= g_gameTime->GetFrameDeltaTime();
+		//無敵タイマーが0.0f以下だったら
+		if (m_receiveDamageTimer <= INVICNIBILITY_MIN_TIME)
+		{
+			m_invincibilityFlag = false;
+			//無敵タイマーをリセットする
+			m_receiveDamageTimer = INVICNIBILITY_TIME;
+		}
+	}
 }
 
 void Player::Collision()
 {
 	//被ダメージステートかダウンステートだったら
-	if (muteki == true ||
+	if (m_invincibilityFlag == true ||
 		m_playerState == enPlayerState_Down)
 	{
 		//何もしない
@@ -197,14 +214,14 @@ void Player::Collision()
 		if (collision->IsHit(m_charaCon))
 		{
 			//ダメージを受ける
-			m_hp -= 20;
+			m_hp -= RECEIVE_DAMAGE_VALUE;
 			//コリジョンを殺す
 			collision->Dead();
 			//コリジョンを非アクティブにする
 			collision->Deactivate();
 
 			//HPが0より小さかったら
-			if (m_hp <= 0)
+			if (m_hp <= HP_LOWEST_VALUE)
 			{
 				//ダウンステートに移行する
 				m_playerState = enPlayerState_Down;
@@ -213,7 +230,7 @@ void Player::Collision()
 			//HPが0より大きかったら
 			else
 			{
-				muteki = true;
+				m_invincibilityFlag = true;
 			}
 			return;
 		}
@@ -280,10 +297,6 @@ void Player::ManageState()
 		//リロードステートの時
 	case Player::enPlayerState_Reload:
 		ProcessReloadStateTransition();
-		break;
-		//被ダメージステートの時
-	case Player::enPlayerState_ReceiveDamage:
-		ProcessReceiveDamageStateTransition();
 		break;
 		//ダウンステートの時
 	case Player::enPlayerState_Down:
@@ -370,22 +383,6 @@ void Player::ProcessReloadStateTransition()
 	}
 }
 
-void Player::ProcessReceiveDamageStateTransition()
-{
-	if (muteki == true)
-	{
-		//無敵タイマーを減少させる
-		m_receiveDamageTimer -= g_gameTime->GetFrameDeltaTime();
-		//無敵タイマーが0.0f以下だったら
-		if (m_receiveDamageTimer <= 0.0f)
-		{
-			muteki = false;
-			//無敵タイマーをリセットする
-			m_receiveDamageTimer = 1.0f;
-		}
-	}
-}
-
 void Player::ProcessDownStateTransition()
 {
 	//共通のステートの遷移処理
@@ -395,18 +392,18 @@ void Player::ProcessDownStateTransition()
 void Player::MoveSound()
 {
 	//seが再生中だったら
-	if (soundflag == true)
+	if (m_soundFlag == true)
 	{
 		//移動速度が
 		if (fabsf(m_moveSpeed.x) < 0.001f &&
 			fabsf(m_moveSpeed.z) < 0.001f)
 		{
 			m_walkse->Stop();
-			soundflag = false;
+			m_soundFlag = false;
 		}
 	}
 
-	if (soundflag == false) 
+	if (m_soundFlag == false)
 	{
 		if (fabsf(m_moveSpeed.x) > 0.001f &&
 			fabsf(m_moveSpeed.z) > 0.001f)
@@ -415,7 +412,7 @@ void Player::MoveSound()
 			m_walkse->Init(10);
 			m_walkse->SetVolume(0.7f);
 			m_walkse->Play(true);
-			soundflag = true;
+			m_soundFlag = true;
 		}
 	}
 }

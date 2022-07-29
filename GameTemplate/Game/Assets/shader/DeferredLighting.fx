@@ -364,11 +364,12 @@ float4 PSMainCore(PSInput In, uniform int isSoftShadow)
         viewportPos
     );
     
+    
     if(light.isEnableRaytracing){
         // レイトレを行う場合はレイトレで作った反射テクスチャとIBLテクスチャを合成する。
         // GLテクスチャ
         float reflectionRate = 1.0f - ( ( smooth - 0.5f ) * 2.0f );
-        float level = lerp(0.0f, (float)(NUM_REFLECTION_TEXTURE - 1 ), pow( reflectionRate, 3.0f ));
+        float level = min( 3.99f, lerp(0.0f, (float)(NUM_REFLECTION_TEXTURE - 1 ), pow( reflectionRate, 3.0f )));
         if( level < NUM_REFLECTION_TEXTURE-1){
             lig += albedoColor * SampleReflectionColor(In.uv, level);
         }else if (light.isIBL == 1) {
